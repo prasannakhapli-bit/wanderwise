@@ -1,7 +1,11 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL =
+  (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:3000/api'
+    : 'https://wanderwise-api-rhia.onrender.com/api';
+
 
 // === STATE ===
-let state = {
+let state = {   
     destinations: [],
     chatHistory: [],
     currentFilter: 'all',
