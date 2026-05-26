@@ -28,6 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// ================= WELCOME =================
+
 function setupWelcome() {
     const startBtn = document.getElementById('startBtn');
     if (!startBtn) return;
@@ -55,7 +57,6 @@ async function setupDestinations() {
     }
 }
 
-// ✅ FIXED FILTER BUTTONS
 function setupFilterButtons() {
     const buttons = document.querySelectorAll('.filter-btn');
 
@@ -70,19 +71,18 @@ function setupFilterButtons() {
     });
 }
 
-// ✅ FINAL FIXED RENDER FUNCTION
 function renderDestinations() {
     const container = document.getElementById('destinationsList');
     if (!container) return;
 
     const categoryMap = {
-    "mountains": "mountains",
-    "beaches": "beaches",
-    "heritage cities": "heritage",
-    "hidden gems": "hidden"
-};
+        "mountains": "mountains",
+        "beaches": "beaches",
+        "heritage cities": "heritage",
+        "hidden gems": "hidden"
+    };
 
-    const filterKey = categoryMap[state.currentFilter?.toLowerCase()] || state.currentFilter;
+    const filterKey = categoryMap[state.currentFilter] || state.currentFilter;
 
     const filtered =
         state.currentFilter === 'all'
@@ -121,7 +121,7 @@ function setupChat() {
     });
 }
 
-// ✅ FIXED MESSAGE FLOW
+// ✅ CLEAN FIXED CHAT FUNCTION
 async function sendMessage(retryMessage = null) {
     const input = document.getElementById('chatInput');
     const message = retryMessage || input.value.trim();
@@ -130,8 +130,6 @@ async function sendMessage(retryMessage = null) {
 
     input.value = '';
     addChatMessage('user', message);
-
-    const messagesDiv = document.getElementById('chatMessages');
 
     try {
         let response = await fetch(`${API_URL}/chat`, {
@@ -145,26 +143,33 @@ async function sendMessage(retryMessage = null) {
         let fullText = '';
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
+        let buffer = '';
 
         const botMsg = addChatMessage('tara', '');
 
         while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+            const { done, value } = await reader.read();
+            if (done) break;
 
-        const chunk = decoder.decode(value);
+            buffer += decoder.decode(value, { stream: true });
 
-        try {
-            if (chunk.trim().startsWith('{')) {
-                const json = JSON.parse(chunk);
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
 
-                if (json.data && json.data.chunk) {
-                    fullText += json.data.chunk;
-                    botMsg.innerHTML = `<div class="chat-bubble">${fullText}</div>`;
-                }
+            for (let line of lines) {
+                line = line.trim();
+                if (!line) continue;
+
+                try {
+                    const json = JSON.parse(line);
+
+                    if (json.data && json.data.chunk) {
+                        fullText += json.data.chunk;
+                        botMsg.innerHTML = `<div class="chat-bubble">${fullText}</div>`;
+                    }
+                } catch (e) {}
             }
-        } catch (e) {}
-    }
+        }
 
         state.chatHistory.push({ role: 'user', content: message });
         state.chatHistory.push({ role: 'assistant', content: fullText });
@@ -180,13 +185,12 @@ async function sendMessage(retryMessage = null) {
     }
 }
 
-// ================= UI UTILS =================
+// ================= UI =================
 
 function addChatMessage(role, text) {
     const div = document.createElement('div');
     div.className = `chat-message ${role}`;
     div.innerHTML = `<div class="chat-bubble">${text}</div>`;
-
     document.getElementById('chatMessages').appendChild(div);
     return div;
 }
