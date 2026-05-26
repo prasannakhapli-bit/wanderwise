@@ -14,15 +14,17 @@ let state = {
 
 // === INITIALIZATION ===
 document.addEventListener('DOMContentLoaded', () => {
-    setupAudio();
-    setupWelcome();
-    setupDestinations();
-    setupAbout();
-    setupChat();
-    setupFooter();
+    try { if (typeof setupAudio === "function") setupAudio(); } catch(e){}
+    try { if (typeof setupWelcome === "function") setupWelcome(); } catch(e){}
+    try { if (typeof setupDestinations === "function") setupDestinations(); } catch(e){}
+    try { if (typeof setupAbout === "function") setupAbout(); } catch(e){}
+
+    setupChat();   // ✅ ALWAYS RUN THIS
+
+    try { if (typeof setupFooter === "function") setupFooter(); } catch(e){}
 });
 
-// === CHAT SETUP (✅ FIXED EVENTS HERE) ===
+// === CHAT SETUP ===
 function setupChat() {
     const toggle = document.getElementById('chatToggle');
     const panel = document.getElementById('chatPanel');
@@ -31,21 +33,28 @@ function setupChat() {
     const sendBtn = document.getElementById('chatSend');
     const quickReplies = document.querySelectorAll('.quick-reply-chip');
 
-    toggle.addEventListener('click', () => {
-        state.chatOpen = !state.chatOpen;
-        panel.classList.toggle('hidden');
-        if (state.chatOpen) input.focus();
-    });
+    if (!input || !sendBtn) {
+        console.error("Chat elements missing ❌");
+        return;
+    }
 
-    closeBtn.addEventListener('click', () => {
-        state.chatOpen = false;
-        panel.classList.add('hidden');
-    });
+    if (toggle && panel) {
+        toggle.addEventListener('click', () => {
+            state.chatOpen = !state.chatOpen;
+            panel.classList.toggle('hidden');
+            if (state.chatOpen) input.focus();
+        });
+    }
 
-    // ✅ FIXED BUTTON CLICK
+    if (closeBtn && panel) {
+        closeBtn.addEventListener('click', () => {
+            state.chatOpen = false;
+            panel.classList.add('hidden');
+        });
+    }
+
     sendBtn.addEventListener('click', sendMessage);
 
-    // ✅ FIXED ENTER KEY
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -57,12 +66,13 @@ function setupChat() {
         chip.addEventListener('click', () => {
             input.value = chip.dataset.question;
             sendMessage();
-            document.getElementById('quickReplies').style.display = 'none';
+            const qr = document.getElementById('quickReplies');
+            if (qr) qr.style.display = 'none';
         });
     });
 }
 
-// === SEND MESSAGE (✅ FULLY IMPROVED VERSION) ===
+// === SEND MESSAGE ===
 async function sendMessage(retryMessage = null) {
     const input = document.getElementById('chatInput');
     const message = retryMessage || input.value.trim();
@@ -79,7 +89,6 @@ async function sendMessage(retryMessage = null) {
 
     const messagesDiv = document.getElementById('chatMessages');
 
-    // ✅ typing indicator
     const typingDiv = document.createElement('div');
     typingDiv.className = 'chat-message tara';
     typingDiv.innerHTML = `
@@ -103,10 +112,7 @@ async function sendMessage(retryMessage = null) {
         let fullResponse = '';
 
         const controller = new AbortController();
-
-        const timeoutId = setTimeout(() => {
-            controller.abort();
-        }, 60000);
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
 
         let response;
 
@@ -127,7 +133,6 @@ async function sendMessage(retryMessage = null) {
 
         if (!response.ok) throw new Error('Chat failed');
 
-        // ✅ REMOVE typing
         typingDiv.remove();
 
         const responseBubble = document.createElement('div');
@@ -135,8 +140,6 @@ async function sendMessage(retryMessage = null) {
 
         const bubbleContent = document.createElement('div');
         bubbleContent.className = 'chat-bubble';
-
-        // ✅ UX improvement
         bubbleContent.textContent = "Thinking...";
 
         responseBubble.appendChild(bubbleContent);
@@ -165,10 +168,6 @@ async function sendMessage(retryMessage = null) {
                             scrollChatToBottom();
                         }
 
-                        if (json.data && json.data.done) {
-                            break;
-                        }
-
                     } catch (e) {}
                 }
             }
@@ -180,14 +179,12 @@ async function sendMessage(retryMessage = null) {
     } catch (err) {
         console.error('Chat error:', err);
 
-        // ✅ REMOVE typing on error
         typingDiv.remove();
 
         addChatMessage('tara',
             '⏳ Server waking up... ek sec ruk, retry kar raha hoon...'
         );
 
-        // ✅ SAFE RETRY (does NOT break input)
         setTimeout(() => {
             sendMessage(message);
         }, 4000);
