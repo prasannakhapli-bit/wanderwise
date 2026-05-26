@@ -53,6 +53,7 @@ function setupChat() {
         });
     }
 
+    // ✅ IMPORTANT — ADD BACK THESE LINES (YOU LOST THEM)
     sendBtn.addEventListener('click', sendMessage);
 
     input.addEventListener('keydown', (e) => {
@@ -70,7 +71,10 @@ function setupChat() {
             if (qr) qr.style.display = 'none';
         });
     });
-}
+
+} // ✅ ✅ ✅ THIS WAS MISSING / WRONG
+
+    
 
 // === SEND MESSAGE ===
 async function sendMessage(retryMessage = null) {
