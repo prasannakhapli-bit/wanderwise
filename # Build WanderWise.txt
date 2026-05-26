@@ -1,0 +1,211 @@
+# Build WanderWise — a complete travel discovery website with an AI guide named Tara
+
+I want you to build a full travel project for me, end-to-end. I'm not a deep developer, so do as much yourself as possible. Only ask me for things I genuinely have to do myself — sign up to a hosting service, create a GitHub repo, paste an API key. Everything else, just do it.
+
+The project is called **WanderWise**. It's an Indian travel discovery site with an AI travel guide named **Tara** who speaks warm, friendly Hinglish. Build it in clean phases. Don't skip the small things — the polish matters.
+
+---
+
+## Phase 0 — How I want you to work
+
+- Move forward without asking me for clarification unless you genuinely need something only I can provide. If you'd usually pause to check, make the reasonable call and keep going.
+- Frontend: plain **HTML, CSS, JavaScript** only. No React, no frameworks, no build tools. The website should open by loading `index.html`.
+- Backend: **Node.js + Express**. Keep dependencies small.
+- One CSS file, one JS file. Small named functions. Use CSS variables for colors and CSS animations wherever possible.
+- Every server response follows the same shape: `{ success: true/false, message: "...", data?: ... }`.
+- Secrets (API keys, tokens) live in `.env`, never hardcoded, never committed.
+- Comments only when the *why* isn't obvious. Don't narrate what the code does.
+
+---
+
+## Phase 1 — Project structure
+
+Create this folder layout:
+
+```
+wanderwise/
+├── website/                  ← frontend (index.html, style.css, script.js)
+├── website-server/           ← tiny static HTTP server for the frontend
+├── server/                   ← backend (Express + Gemini chatbot)
+│   ├── .env                  ← secrets (gitignored)
+│   └── .env.example          ← template
+├── website-rules.md
+├── server-rules.md
+└── chatbot-rules.md
+```
+
+Write the three rule files describing how each piece should behave (tech choices, response shape, Tara's personality). Keep them short and practical.
+
+---
+
+## Phase 2 — The website (frontend)
+
+Build a dreamy, magazine-style single-page site with these sections:
+
+1. **Welcome screen** — full viewport, tagline *"Duniya Dekhni Hai? Chalo Shuru Karte Hain"*, a big **START EXPLORING** button. Clicking it plays a soft whoosh sound and animates paper planes (✈) floating across the screen.
+2. **Destinations** — 4 filter buttons: Mountains, Beaches, Heritage Cities, Hidden Gems. Cards are fetched from the backend and rendered dynamically. Each card shows a 1–5 star adventure level, cost, top 2 things to do, best season.
+3. **About** — a slowly spinning compass (pure CSS animation) and a counter that animates up to "50,000+ happy travellers" when you scroll to it.
+4. **Footer ticker** — infinitely scrolling Hinglish messages like *"Powered by wanderlust • Tara ne khud explore kiya • Made with chai and curiosity"*.
+5. **Floating chat button** (bottom-right) — opens a chat panel for Tara.
+
+Styling:
+- CSS variable palette: sky blue, sunset orange, sand beige, ocean teal.
+- Soft ambient ocean-waves audio loop, **muted by default**, with a mute/unmute toggle at the top.
+- Use CSS transitions and `@keyframes` throughout.
+- Make it responsive down to mobile widths.
+
+---
+
+## Phase 3 — The destinations data
+
+Create exactly **16 destinations** in `server/destinations.js` — **4 per category** (Mountains, Beaches, Heritage Cities, Hidden Gems).
+
+Each entry needs: name, state, fun Hinglish description with an emoji, approximate cost per person in ₹, adventure level (1–5), best season, exactly 2 top things to do, ideal days.
+
+Mark **4 destinations as "Tara's Top Picks"** — one per category. The frontend fetches this list and renders cards.
+
+---
+
+## Phase 4 — The backend (server)
+
+Use **Express** with `cors` and `dotenv`. Three endpoints:
+
+| Method | Path | What it does |
+|---|---|---|
+| GET | `/api/health` | Returns `"Tara is ready to explore!"` |
+| GET | `/api/destinations` | Returns the 16 destinations |
+| POST | `/api/chat` | Streams Tara's reply word-by-word |
+
+**Important details:**
+- Load `.env` with `dotenv.config({ path: path.join(__dirname, '.env') })` — don't rely on the current working directory.
+- The chat endpoint must accept both a `message` and an optional `history` array (last 12 turns) so Tara can follow up on previous questions like *"what about the cost?"*.
+- Stream the chat as **newline-delimited JSON**, one chunk per line: `{ "success": true, "message": "chunk", "data": { "chunk": "word " } }`. Final line: `{ "success": true, "message": "Stream complete.", "data": { "done": true } }`.
+
+---
+
+## Phase 5 — Tara the AI guide (Gemini integration)
+
+Connect Tara to **Google Gemini** via the REST streaming API (`streamGenerateContent` with `alt=sse`).
+
+**Use the model `gemini-2.5-flash-lite`** — the newer flash-latest models are "thinking" models that burn the whole output token budget on hidden reasoning unless you also set `thinkingConfig: { thinkingBudget: 0 }`. The lite model avoids that headache and has a friendlier free-tier quota.
+
+**Streaming gotcha:** Gemini SSE frames are separated by **CRLF (`\r\n\r\n`)**, not just `\n\n`. Normalize CRLF → LF before splitting frames, otherwise no text reaches the client and you'll lose an hour debugging silence.
+
+**Tara's personality:**
+- Warm, friendly, well-travelled. Speaks natural Hinglish in Roman script.
+- Replies are short — 2 to 5 sentences. No markdown, no bullet lists, no emojis unless the user uses one first.
+- She knows only the 16 WanderWise destinations and recommends from that list.
+- Every destination recommendation must end with exactly: *"Bilkul mast jagah hai, zaroor jaana!"*
+- If the user asks something clearly unrelated to travel (coding, math, recipes), reply with exactly: *"Arre, main toh sirf travel ki baatein karti hoon!"*
+- **Travel-adjacent follow-ups (cost, season, food, transport, days) are NEVER off-topic** — make this explicit in the system prompt or follow-ups break.
+
+**Booking flow:**
+- When the user expresses booking intent (*"book this"*, *"plan kar do"*, *"mujhe yahaan jaana hai"*), Tara replies warmly and the UI renders a small trip card with destination + cost + a sunset-orange **"Plan This Trip"** button. Clicking it pops a *"Added to your wishlist! Mast choice!"* confirmation.
+
+---
+
+## Phase 6 — Hooking the chat UI to Tara
+
+In `script.js`:
+- Maintain a `chatHistory` array in memory and send it with every request (cap to last 12 turns).
+- Show a three-dot bouncing typing indicator while Tara thinks.
+- Stream her reply into the bubble word-by-word.
+- **Auto-scroll gotcha:** do NOT put `scroll-behavior: smooth` on the chat container. With smooth scroll, the streamed words slip below the visible area because the animation can't keep up with the moving bottom. Use instant scroll and wrap `scrollTo` in `requestAnimationFrame` so layout is settled first.
+- Add 4 quick-reply chips: *"Best place for monsoon?"*, *"Budget-friendly trips?"*, *"Honeymoon destinations?"*, *"Adventure spots?"*.
+- On any error show: *"Arre yaar, kuch toh gadbad hui! Thoda ruko aur dobara try karo."*
+
+Also write a small `test-tara.js` that I can run from the terminal — it sends *"I want an adventure trip in the mountains, kuch suggest karo!"* and prints Tara's streamed reply word-by-word, ending with *"Stream complete — Tara ne plan bana diya!"*.
+
+---
+
+## Phase 7 — GitHub setup
+
+1. Create a comprehensive `.gitignore` at the project root covering:
+   - Secrets: `**/.env`, `**/.env.local`, `.mcp.json`, `.mcp.env`, `*.pem`, `*.key`, `secrets/`
+   - Packages: `node_modules/`, `.pnp/`
+   - Logs: `*.log`, `npm-debug.log*`
+   - System: `.DS_Store`, `Thumbs.db`, `._*`
+   - Editors: `.vscode/`, `.idea/`, `*.swp`
+2. Walk me through these commands one at a time and explain each:
+   ```bash
+   git init -b main
+   git status                 # SAFETY CHECK: confirm .env / node_modules NOT listed
+   git check-ignore -v wanderwise/server/.env wanderwise/server/node_modules
+   git add .
+   git commit -m "Initial commit: WanderWise travel discovery + Tara chatbot"
+   ```
+3. Have me create an empty private repo at https://github.com/new (name: `wanderwise`, leave all "Add…" checkboxes unticked).
+4. Have me create a **classic Personal Access Token** with the `repo` scope at https://github.com/settings/tokens/new and paste it to you. (Classic, not fine-grained — fine-grained tokens default to "Selected repositories" and won't see newly created repos until manually added, which trips up beginners.)
+5. Push using the token inline so it never lands in `.git/config`:
+   ```bash
+   git remote add origin https://github.com/<username>/wanderwise.git
+   git push "https://x-access-token:<TOKEN>@github.com/<username>/wanderwise.git" main
+   ```
+6. Demonstrate the full feature-branch workflow once: create `feat/<something>`, commit a small change, push, open a PR via the GitHub API with a title, description, `enhancement` label, and me as assignee.
+7. Tell me to **revoke the token** at the end of the session.
+
+---
+
+## Phase 8 — Deployment (free tier)
+
+**Frontend → GitHub Pages.** Publish only the `wanderwise/website` folder as a `gh-pages` branch using `git subtree split`. Enable Pages via the GitHub REST API pointing at that branch. The site goes live at `https://<username>.github.io/wanderwise/`.
+
+**Backend → Render free tier.**
+1. Commit a `render.yaml` Blueprint at the repo root that defines ONE service (the Node API). The frontend is on GitHub Pages, so don't include a static-site service — Render rejects `plan: free` on static sites.
+2. Mark `GEMINI_API_KEY` as `sync: false` so it has to be set in the dashboard, not committed.
+3. Have me sign up at https://dashboard.render.com (one-time, GitHub OAuth), then **New → Blueprint → connect repo → paste GEMINI_API_KEY → Apply**.
+4. Note the assigned URL — Render usually appends a random suffix if the name is taken (e.g. `wanderwise-api-86qw.onrender.com`).
+5. Update `PRODUCTION_API_BASE` in `script.js` with the actual URL. Detect environment by hostname:
+   ```js
+   const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+     ? 'http://localhost:3001'
+     : 'https://<your-render-api>.onrender.com';
+   ```
+6. Republish the `gh-pages` branch after the change (subtree split + force push).
+7. **Cache-bust the assets** by appending `?v=2` (or any version string) to the `<link>` and `<script>` tags in `index.html`. Without this, browsers serve the stale `script.js` that still points at localhost and the live chat looks broken for hours. Bump the number on every deploy.
+
+**Heads up on Render's free tier:** the backend sleeps after ~15 minutes of no traffic. The next visitor's first chat takes ~30 seconds while it wakes. Fine for a demo, not for production scale.
+
+---
+
+## Phase 9 — Final testing and launch checklist
+
+Once both URLs are live:
+1. Open `<github-pages-url>/wanderwise/` in a fresh incognito window.
+2. Hard refresh (Cmd+Shift+R / Ctrl+Shift+R) to dodge any old cache.
+3. Welcome screen → click START EXPLORING → planes fly, whoosh plays.
+4. Destinations load, filters work, cards show stars correctly.
+5. Open chat → quick-reply *"Best place for monsoon?"* → Tara streams a Hinglish reply ending in *"Bilkul mast jagah hai, zaroor jaana!"*.
+6. Follow up with *"What about the cost?"* → Tara stays on the same destination (proves conversation memory works).
+7. Say *"I want to book that one"* → trip card with cost + Plan This Trip button → clicking it pops the wishlist confirmation.
+8. About section counter animates when scrolled into view, compass spins.
+9. Footer ticker scrolls smoothly.
+10. Audio toggle in the header mutes/unmutes the ambient track.
+
+If anything fails:
+- Check browser devtools → Console + Network for the actual error.
+- Check Render → service → Logs.
+- Confirm `GEMINI_API_KEY` is set in Render dashboard.
+- Confirm the live `script.js` (open it directly in the browser) shows the right `PRODUCTION_API_BASE`.
+
+---
+
+## Phase 10 — Security cleanup (don't skip)
+
+At the end:
+1. Revoke the GitHub PAT we used.
+2. Rotate the Gemini API key if it ever appeared in chat or commits.
+3. Confirm `.env`, `.mcp.json`, and any other secret file are gitignored — `git check-ignore -v` to verify.
+
+---
+
+## Constraints recap
+
+- No frameworks on the frontend. Plain HTML/CSS/JS.
+- Streamed chat replies word-by-word, with conversation memory.
+- Tara always speaks Hinglish, signs off destination recommendations with the required phrase, refuses off-topic with the other required phrase.
+- No secrets in the repo. Ever.
+- Two deployed services: GitHub Pages (frontend) + Render (backend).
+- I want minimum manual effort. Do everything you can yourself via the GitHub API and local tooling. Only stop to ask me when something genuinely requires my hands.
+
+Now build it. Start with Phase 1 and go in order. After each phase, tell me what you finished and what (if anything) I need to do before you can continue.

@@ -1,0 +1,24 @@
+{
+  "name": "wanderwise-server",
+  "version": "1.0.0",
+  "description": "WanderWise backend — Express + Gemini travel guide API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test-tara": "node test-tara.js"
+  },
+  "keywords": [
+    "travel",
+    "india",
+    "gemini",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3"
+  }
+}

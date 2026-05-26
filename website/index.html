@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WanderWise — Explore India with Tara</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Audio: Ambient ocean waves (muted by default) -->
+    <audio id="ambientAudio" loop>
+        <source src="data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==" type="audio/wav">
+    </audio>
+
+    <!-- Mute/Unmute Toggle -->
+    <button id="audioToggle" class="audio-toggle" title="Toggle ambient sound">🔇</button>
+
+    <!-- Welcome Screen -->
+    <section id="welcome" class="welcome">
+        <div class="welcome-content">
+            <h1 class="welcome-tagline">Duniya Dekhni Hai?<br>Chalo Shuru Karte Hain</h1>
+            <button id="startBtn" class="start-btn">START EXPLORING</button>
+        </div>
+        <canvas id="planeCanvas" class="plane-canvas"></canvas>
+    </section>
+
+    <!-- Navigation Scroll Anchor -->
+    <nav class="scroll-nav">
+        <a href="#destinations">Destinations</a>
+        <a href="#about">About</a>
+    </nav>
+
+    <!-- Destinations Section -->
+    <section id="destinations" class="destinations">
+        <h2>Explore 16 Amazing Destinations</h2>
+        
+        <div class="filter-bar">
+            <button class="filter-btn active" data-category="all">All</button>
+            <button class="filter-btn" data-category="Mountains">Mountains</button>
+            <button class="filter-btn" data-category="Beaches">Beaches</button>
+            <button class="filter-btn" data-category="Heritage">Heritage Cities</button>
+            <button class="filter-btn" data-category="Hidden">Hidden Gems</button>
+        </div>
+
+        <div id="destinationsList" class="destinations-grid">
+            <!-- Cards loaded dynamically -->
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="compass-container">
+            <div class="compass">🧭</div>
+        </div>
+        <div class="counter-section">
+            <h2 id="counterText" class="counter-text">0</h2>
+            <p class="counter-label">+ happy travellers have explored with Tara</p>
+        </div>
+    </section>
+
+    <!-- Footer Ticker -->
+    <footer class="footer-ticker">
+        <div class="ticker-wrap">
+            <div class="ticker-content">
+                <span class="ticker-item">Powered by wanderlust</span>
+                <span class="ticker-item">•</span>
+                <span class="ticker-item">Tara ne khud explore kiya</span>
+                <span class="ticker-item">•</span>
+                <span class="ticker-item">Made with chai and curiosity</span>
+                <span class="ticker-item">•</span>
+                <span class="ticker-item">Duniya bahut badi hai</span>
+                <span class="ticker-item">•</span>
+                <span class="ticker-item">Adventure awaits</span>
+                <span class="ticker-item">•</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chat Panel -->
+    <div id="chatContainer" class="chat-container">
+        <button id="chatToggle" class="chat-toggle">💬</button>
+        
+        <div id="chatPanel" class="chat-panel">
+            <div class="chat-header">
+                <h3>Chat with Tara</h3>
+                <button class="chat-close">✕</button>
+            </div>
+
+            <div id="chatMessages" class="chat-messages">
+                <!-- Welcome message -->
+                <div class="chat-message tara">
+                    <div class="chat-bubble">
+                        Namaste! Main Tara hoon, tumhare travel guide. Kahan jaana hai? 😊
+                    </div>
+                </div>
+
+                <!-- Quick reply chips (shown on first visit) -->
+                <div class="quick-replies" id="quickReplies">
+                    <button class="quick-reply-chip" data-question="Best place for monsoon?">Best place for monsoon?</button>
+                    <button class="quick-reply-chip" data-question="Budget-friendly trips?">Budget-friendly trips?</button>
+                    <button class="quick-reply-chip" data-question="Honeymoon destinations?">Honeymoon destinations?</button>
+                    <button class="quick-reply-chip" data-question="Adventure spots?">Adventure spots?</button>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <input id="chatInput" type="text" class="chat-input" placeholder="Ask Tara...">
+                <button id="chatSend" class="chat-send">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trip Card Modal (for booking) -->
+    <div id="tripCardModal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close">✕</button>
+            <div id="tripCardContent"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
