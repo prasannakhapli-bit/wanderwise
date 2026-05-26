@@ -10,6 +10,15 @@ const { streamChatResponseWordByWord } = require('./chatbot');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.get('/', (req, res) => {
+    res.send('✅ Wanderwise API is running');
+});
+
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', service: 'wanderwise-api' });
+});
+
+
 // ✅ CLEAN CORS (IMPORTANT)
 app.use(cors({
   origin: '*'
