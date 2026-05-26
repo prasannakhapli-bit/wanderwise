@@ -1,3 +1,6 @@
+html {
+    scroll-behavior: smooth;
+}
 :root {
     --sky-blue: #1E3A8A;
     --sky-light: #E0F2FE;
@@ -17,9 +20,7 @@
     box-sizing: border-box;
 }
 
-html {
-    scroll-behavior: auto;
-}
+
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;

@@ -13,6 +13,7 @@ let state = {
 
 // === INIT ===
 document.addEventListener('DOMContentLoaded', () => {
+    setupWelcome();
     setupDestinations();
     setupChat();
     setupFilterButtons();
@@ -26,6 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+function setupWelcome() {
+    const startBtn = document.getElementById('startBtn');
+    if (!startBtn) return;
+
+    startBtn.addEventListener('click', () => {
+        const section = document.getElementById('destinations');
+        if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+}
 
 // ================= DESTINATIONS =================
 
@@ -63,13 +76,13 @@ function renderDestinations() {
     if (!container) return;
 
     const categoryMap = {
-        "mountains": "mountains",
-        "beaches": "beaches",
-        "heritage sites": "heritage",
-        "hidden gems": "hidden"
-    };
+    "mountains": "mountains",
+    "beaches": "beaches",
+    "heritage cities": "heritage",
+    "hidden gems": "hidden"
+};
 
-    const filterKey = categoryMap[state.currentFilter];
+    const filterKey = categoryMap[state.currentFilter?.toLowerCase()] || state.currentFilter;
 
     const filtered =
         state.currentFilter === 'all'
@@ -136,18 +149,22 @@ async function sendMessage(retryMessage = null) {
         const botMsg = addChatMessage('tara', '');
 
         while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+        const { done, value } = await reader.read();
+        if (done) break;
 
-            const chunk = decoder.decode(value);
-            try {
+        const chunk = decoder.decode(value);
+
+        try {
+            if (chunk.trim().startsWith('{')) {
                 const json = JSON.parse(chunk);
+
                 if (json.data && json.data.chunk) {
                     fullText += json.data.chunk;
                     botMsg.innerHTML = `<div class="chat-bubble">${fullText}</div>`;
                 }
-            } catch {}
-        }
+            }
+        } catch (e) {}
+    }
 
         state.chatHistory.push({ role: 'user', content: message });
         state.chatHistory.push({ role: 'assistant', content: fullText });
