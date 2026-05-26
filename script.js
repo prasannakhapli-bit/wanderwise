@@ -120,7 +120,7 @@ function setupFilterButtons() {
             buttons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
-            state.currentFilter = btn.dataset.category;
+            state.currentFilter = btn.dataset.category.toLowerCase();
             renderDestinations();
         });
     });
@@ -302,9 +302,27 @@ function renderDestinations() {
     const container = document.getElementById('destinationsList');
     if (!container) return;
 
+    // ✅ FIX: map UI filter → backend category
+    const categoryMap = {
+        "mountains": "mountains",
+        "beaches": "beaches",
+        "heritage cities": "heritage",
+        "hidden gems": "hidden"
+    };
+
+    const filterKey = categoryMap[state.currentFilter];
+
     const filtered = state.currentFilter === 'all'
         ? state.destinations
-        : state.destinations.filter(d => (d.category || '').toLowerCase() === state.currentFilter);
+        : state.destinations.filter(d =>
+            (d.category || '').toLowerCase() === filterKey
+        );
+
+    // ✅ Optional: show message if empty
+    if (filtered.length === 0) {
+        container.innerHTML = `<p style="text-align:center;">No destinations found</p>`;
+        return;
+    }
 
     container.innerHTML = filtered.map(dest => `
         <div class="destination-card">
