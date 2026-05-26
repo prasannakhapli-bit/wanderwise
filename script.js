@@ -1,18 +1,85 @@
-async function sendMessage() {
+const API_URL =
+  (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://localhost:3000/api'
+    : 'https://wanderwise-api-rhia.onrender.com/api';
+
+// === STATE ===
+let state = {
+    destinations: [],
+    chatHistory: [],
+    currentFilter: 'all',
+    chatOpen: false,
+    audioEnabled: localStorage.getItem('audioEnabled') !== 'false'
+};
+
+// === INITIALIZATION ===
+document.addEventListener('DOMContentLoaded', () => {
+    setupAudio();
+    setupWelcome();
+    setupDestinations();
+    setupAbout();
+    setupChat();
+    setupFooter();
+});
+
+// === CHAT SETUP (✅ FIXED EVENTS HERE) ===
+function setupChat() {
+    const toggle = document.getElementById('chatToggle');
+    const panel = document.getElementById('chatPanel');
+    const closeBtn = document.querySelector('.chat-close');
     const input = document.getElementById('chatInput');
-    const message = input.value.trim();
+    const sendBtn = document.getElementById('chatSend');
+    const quickReplies = document.querySelectorAll('.quick-reply-chip');
+
+    toggle.addEventListener('click', () => {
+        state.chatOpen = !state.chatOpen;
+        panel.classList.toggle('hidden');
+        if (state.chatOpen) input.focus();
+    });
+
+    closeBtn.addEventListener('click', () => {
+        state.chatOpen = false;
+        panel.classList.add('hidden');
+    });
+
+    // ✅ FIXED BUTTON CLICK
+    sendBtn.addEventListener('click', sendMessage);
+
+    // ✅ FIXED ENTER KEY
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    quickReplies.forEach(chip => {
+        chip.addEventListener('click', () => {
+            input.value = chip.dataset.question;
+            sendMessage();
+            document.getElementById('quickReplies').style.display = 'none';
+        });
+    });
+}
+
+// === SEND MESSAGE (✅ FULLY IMPROVED VERSION) ===
+async function sendMessage(retryMessage = null) {
+    const input = document.getElementById('chatInput');
+    const message = retryMessage || input.value.trim();
 
     if (!message) return;
 
-    input.value = '';
-    addChatMessage('user', message);
+    if (!retryMessage) {
+        input.value = '';
+        addChatMessage('user', message);
+    }
 
-    // Remove quick replies
     const quickReplies = document.getElementById('quickReplies');
     if (quickReplies) quickReplies.style.display = 'none';
 
-    // Show typing indicator
     const messagesDiv = document.getElementById('chatMessages');
+
+    // ✅ typing indicator
     const typingDiv = document.createElement('div');
     typingDiv.className = 'chat-message tara';
     typingDiv.innerHTML = `
@@ -28,7 +95,6 @@ async function sendMessage() {
     scrollChatToBottom();
 
     try {
-        // Prepare history
         const history = state.chatHistory.slice(-24).map(msg => ({
             role: msg.role,
             content: msg.content
@@ -36,12 +102,11 @@ async function sendMessage() {
 
         let fullResponse = '';
 
-        // ✅ TIMEOUT + CONTROLLER
         const controller = new AbortController();
 
         const timeoutId = setTimeout(() => {
             controller.abort();
-        }, 60000); // 60 sec
+        }, 60000);
 
         let response;
 
@@ -62,7 +127,7 @@ async function sendMessage() {
 
         if (!response.ok) throw new Error('Chat failed');
 
-        // ✅ Remove typing indicator
+        // ✅ REMOVE typing
         typingDiv.remove();
 
         const responseBubble = document.createElement('div');
@@ -71,7 +136,7 @@ async function sendMessage() {
         const bubbleContent = document.createElement('div');
         bubbleContent.className = 'chat-bubble';
 
-        // ✅ SHOW LOADING TEXT (UX FIX)
+        // ✅ UX improvement
         bubbleContent.textContent = "Thinking...";
 
         responseBubble.appendChild(bubbleContent);
@@ -104,35 +169,46 @@ async function sendMessage() {
                             break;
                         }
 
-                    } catch (e) {
-                        // ignore parse errors
-                    }
+                    } catch (e) {}
                 }
             }
         }
 
-        // ✅ Save history
         state.chatHistory.push({ role: 'user', content: message });
         state.chatHistory.push({ role: 'assistant', content: fullResponse });
-
-        // ✅ Booking detection
-        if (isBookingIntent(message, fullResponse)) {
-            showBookingCard(fullResponse);
-        }
 
     } catch (err) {
         console.error('Chat error:', err);
 
-        // ✅ Remove typing indicator (IMPORTANT FIX)
+        // ✅ REMOVE typing on error
         typingDiv.remove();
 
         addChatMessage('tara',
-            '⏳ Server thoda slow hai... ek sec ruk, dobara try karo.'
+            '⏳ Server waking up... ek sec ruk, retry kar raha hoon...'
         );
 
-        // ✅ OPTIONAL AUTO RETRY (safe retry)
+        // ✅ SAFE RETRY (does NOT break input)
         setTimeout(() => {
             sendMessage(message);
         }, 4000);
     }
 }
+
+// === UTILITIES ===
+function addChatMessage(role, content) {
+    const messagesDiv = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${role}`;
+    messageDiv.innerHTML = `<div class="chat-bubble">${content}</div>`;
+    messagesDiv.appendChild(messageDiv);
+    scrollChatToBottom();
+}
+
+function scrollChatToBottom() {
+    const messagesDiv = document.getElementById('chatMessages');
+    requestAnimationFrame(() => {
+        messagesDiv.scrollIntoView({ behavior: 'instant', block: 'end' });
+    });
+}
+
+function setupFooter() {}
