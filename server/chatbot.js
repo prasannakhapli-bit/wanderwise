@@ -5,43 +5,28 @@ const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 function buildSystemPrompt() {
-    const destList = destinations.map(d => 
+    const destList = destinations.map(d =>
         `• ${d.name} (${d.state}): ${d.description} — ₹${d.cost}, Adventure Level: ${d.adventureLevel}/5, Best: ${d.bestSeason}`
     ).join('\n');
 
     return `
-    You are Tara, a polite, friendly and professional female travel assistant for WanderWise.
+You are Tara, a polite, friendly and professional female travel assistant for WanderWise.
 
-    IMPORTANT:
-    - You MUST always sound polite, calm, and respectful
-    - You MUST NOT use slang, rude tone, or casual expressions
-    - You MUST NOT sound aggressive, sarcastic, or dismissive
-    - You MUST always speak like a professional travel advisor
+IMPORTANT:
+- Always be polite and professional
+- Do not use slang or rude tone
+- Keep responses short (2–4 sentences)
 
-    Speaking style:
-    - Simple, natural English
-    - 2–4 short sentences
-    - Friendly but professional
-    - No emojis unless user uses them
-    - No Hindi slang like "arre", "bhai", "ruk", etc.
+OFF-TOPIC:
+If question is unrelated to travel, reply:
+"I specialize in travel planning and destinations. Let me help you find a great place to explore!"
 
-    Behavior:
-    - Suggest travel places positively
-    - Encourage user politely
-    - Maintain conversation tone consistently
-
-    OFF-TOPIC:
-    If question is unrelated to travel, reply ONLY:
-    "I specialize in travel planning and destinations. Let me help you find a great place to explore!"
-
-    Destinations:
-    ${destList}
-
-    Always respond as Tara, maintaining this tone strictly.
-    `;
-    
+Destinations:
+${destList}
+`;
 }
 
+// ✅ SINGLE CLEAN FUNCTION (NO STREAMING)
 async function streamChatResponse(userMessage, history) {
     const systemPrompt = buildSystemPrompt();
 
@@ -60,21 +45,18 @@ async function streamChatResponse(userMessage, history) {
         }
     ];
 
-    const requestBody = {
-        contents: messages,
-        generationConfig: {
-            temperature: 0.7,
-            topP: 0.95,
-            maxOutputTokens: 150
-        }
-    };
-
     const response = await fetch(
-        `${GEMINI_URL}/${GEMINI_MODEL}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`,
+        `${GEMINI_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
         {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody)
+            body: JSON.stringify({
+                contents: messages,
+                generationConfig: {
+                    temperature: 0.7,
+                    maxOutputTokens: 150
+                }
+            })
         }
     );
 
@@ -82,67 +64,12 @@ async function streamChatResponse(userMessage, history) {
         throw new Error('Gemini API error');
     }
 
-    return response;
-}
+    const data = await response.json();
 
-async function* parseSSEStream(reader) {
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        buffer = buffer.replace(/\r\n/g, '\n');
-
-        const parts = buffer.split('\n\n');
-        buffer = parts.pop() || '';
-
-        for (const part of parts) {
-            if (part.startsWith('data: ')) {
-                const jsonStr = part.slice(6);
-                try {
-                    const json = JSON.parse(jsonStr);
-                    yield json;
-                } catch (e) {}
-            }
-        }
-    }
-}
-
-async function streamChatResponseWordByWord(userMessage, history, callback) {
-    const response = await streamChatResponse(userMessage, history);
-    let fullText = '';
-
-    try {
-        for await (const chunk of parseSSEStream(response.body.getReader())) {
-
-            if (
-                chunk.candidates &&
-                chunk.candidates[0] &&
-                chunk.candidates[0].content &&
-                chunk.candidates[0].content.parts &&
-                chunk.candidates[0].content.parts[0] &&
-                chunk.candidates[0].content.parts[0].text
-            ) {
-                const text = chunk.candidates[0].content.parts[0].text;
-
-                // ✅ FIXED: smooth streaming
-                fullText += text;
-                callback({ chunk: text });
-            }
-        }
-    } catch (err) {
-        console.error('Streaming error:', err);
-        throw err;
-    }
-
-    return fullText;
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+        "Sorry, I couldn't generate a response.";
 }
 
 module.exports = {
-    streamChatResponse,
-    streamChatResponseWordByWord,
-    parseSSEStream
+    streamChatResponse
 };

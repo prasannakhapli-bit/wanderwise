@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFilterButtons();
 
     const modal = document.getElementById('tripCardModal');
-    const closeBtn = document.querySelector('#tripCardModal .close-btn');
+    const closeBtn = document.querySelector('.modal-close');
 
     if (modal && closeBtn) {
         closeBtn.addEventListener('click', () => {
@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ================= WELCOME =================
-
 function setupWelcome() {
     const startBtn = document.getElementById('startBtn');
     if (!startBtn) return;
@@ -43,7 +42,6 @@ function setupWelcome() {
 }
 
 // ================= DESTINATIONS =================
-
 async function setupDestinations() {
     try {
         const res = await fetch(`${API_URL}/destinations`);
@@ -105,7 +103,6 @@ function renderDestinations() {
 }
 
 // ================= CHAT =================
-
 function setupChat() {
     const input = document.getElementById('chatInput');
     const sendBtn = document.getElementById('chatSend');
@@ -121,7 +118,7 @@ function setupChat() {
     });
 }
 
-// ✅ CLEAN FIXED CHAT FUNCTION
+// ✅ STABLE CHAT (NON-STREAMING)
 async function sendMessage(retryMessage = null) {
     const input = document.getElementById('chatInput');
     const message = retryMessage || input.value.trim();
@@ -132,61 +129,29 @@ async function sendMessage(retryMessage = null) {
     addChatMessage('user', message);
 
     try {
-        let response = await fetch(`${API_URL}/chat`, {
+        const res = await fetch(`${API_URL}/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message, history: state.chatHistory })
         });
 
-        if (!response.ok) throw new Error();
+        if (!res.ok) throw new Error();
 
-        let fullText = '';
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
+        const data = await res.json();
 
-        const botMsg = addChatMessage('tara', '');
+        addChatMessage('tara', data.reply);
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            buffer += decoder.decode(value, { stream: true });
-
-            const lines = buffer.split('\n');
-            buffer = lines.pop();
-
-            for (let line of lines) {
-                line = line.trim();
-                if (!line) continue;
-
-                try {
-                    const json = JSON.parse(line);
-
-                    if (json.data && json.data.chunk) {
-                        fullText += json.data.chunk;
-                        botMsg.innerHTML = `<div class="chat-bubble">${fullText}</div>`;
-                    }
-                } catch (e) {}
-            }
-        }
-
+        // ✅ Maintain conversation history
         state.chatHistory.push({ role: 'user', content: message });
-        state.chatHistory.push({ role: 'assistant', content: fullText });
+        state.chatHistory.push({ role: 'assistant', content: data.reply });
 
     } catch (err) {
         console.error(err);
-
         addChatMessage('tara', "⏳ Just a moment while I reconnect...");
-
-        if (!retryMessage) {
-            setTimeout(() => sendMessage(message), 6000);
-        }
     }
 }
 
 // ================= UI =================
-
 function addChatMessage(role, text) {
     const div = document.createElement('div');
     div.className = `chat-message ${role}`;
@@ -196,3 +161,4 @@ function addChatMessage(role, text) {
 }
 
 function setupFooter() {}
+``
