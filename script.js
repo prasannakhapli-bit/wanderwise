@@ -3,6 +3,17 @@ const API_URL =
     ? 'http://localhost:3000/api'
     : 'https://wanderwise-api-rhia.onrender.com/api';
 
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('tripCardModal');
+    const closeBtn = document.querySelector('#tripCardModal .close-btn');
+
+    if (modal && closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+    }
+});
+
 // === STATE ===
 let state = {
     destinations: [],
@@ -74,6 +85,58 @@ function setupChat() {
 
 } // ✅ ✅ ✅ THIS WAS MISSING / WRONG
 
+function setupWelcome() {
+    const startBtn = document.getElementById('startBtn');
+    if (!startBtn) return;
+
+    startBtn.addEventListener('click', () => {
+        document.getElementById('destinations')?.scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+}
+
+async function setupDestinations() {
+    try {
+        const res = await fetch(`${API_URL}/destinations`);
+        const data = await res.json();
+
+        if (!data.success) throw new Error();
+
+        state.destinations = data.data;
+
+        renderDestinations();
+        setupFilterButtons();
+    } catch (err) {
+        console.error("Destinations failed", err);
+    }
+}
+
+function setupFilterButtons() {
+    const buttons = document.querySelectorAll('.filter-btn');
+
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            state.currentFilter = btn.dataset.category;
+            renderDestinations();
+        });
+    });
+}
+
+function isBookingIntent(message, response) {
+    const keywords = [
+        'go', 'visit', 'plan', 'trip', 'travel',
+        'place', 'best', 'recommend', 'suggest'
+    ];
+
+    const text = (message + " " + response).toLowerCase();
+
+    return keywords.some(k => text.includes(k));
+}
+
     
 
 // === SEND MESSAGE ===
@@ -144,7 +207,11 @@ async function sendMessage(retryMessage = null) {
 
         const bubbleContent = document.createElement('div');
         bubbleContent.className = 'chat-bubble';
-        bubbleContent.textContent = "Thinking...";
+        
+        if (fullResponse.length === 0) {
+            bubbleContent.textContent = "Thinking...";
+        }
+
 
         responseBubble.appendChild(bubbleContent);
         messagesDiv.appendChild(responseBubble);
@@ -179,6 +246,10 @@ async function sendMessage(retryMessage = null) {
 
         state.chatHistory.push({ role: 'user', content: message });
         state.chatHistory.push({ role: 'assistant', content: fullResponse });
+        
+        if (isBookingIntent(message, fullResponse)) {
+            showBookingCard(fullResponse);
+}
 
     } catch (err) {
         console.error('Chat error:', err);
@@ -188,11 +259,26 @@ async function sendMessage(retryMessage = null) {
         addChatMessage('tara',
             '⏳ Server waking up... ek sec ruk, retry kar raha hoon...'
         );
+        
+        
+        if (!retryMessage) {
+            setTimeout(() => {
+                sendMessage(message);
+            }, 4000);
+        }
 
-        setTimeout(() => {
-            sendMessage(message);
-        }, 4000);
     }
+}
+
+function showBookingCard(response) {
+    const modal = document.getElementById('tripCardModal');
+
+    if (!modal) {
+        console.error("Modal not found ❌");
+        return;
+    }
+
+    modal.classList.remove('hidden');
 }
 
 // === UTILITIES ===
@@ -211,5 +297,22 @@ function scrollChatToBottom() {
         messagesDiv.scrollIntoView({ behavior: 'instant', block: 'end' });
     });
 }
+
+function renderDestinations() {
+    const container = document.getElementById('destinationsList');
+    if (!container) return;
+
+    const filtered = state.currentFilter === 'all'
+        ? state.destinations
+        : state.destinations.filter(d => (d.category || '').toLowerCase() === state.currentFilter);
+
+    container.innerHTML = filtered.map(dest => `
+        <div class="destination-card">
+            <h3>${dest.name}</h3>
+            <p>${dest.description}</p>
+        </div>
+    `).join('');
+}
+
 
 function setupFooter() {}
