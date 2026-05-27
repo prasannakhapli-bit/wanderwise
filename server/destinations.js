@@ -46,7 +46,7 @@ const destinations = [
         state: 'Himachal Pradesh',
         category: 'Mountains',
         description: 'High altitude mein space mein travel karte feel karega! 🪐',
-        imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop',
+        imageUrl: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=500&h=300&fit=crop',
         cost: 30000,
         adventureLevel: 5,
         bestSeason: 'July - September',
