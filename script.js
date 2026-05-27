@@ -28,23 +28,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-function setupChatUI() {
-    const toggleBtn = document.getElementById('chatToggle');
-    const chatPanel = document.getElementById('chatPanel');
-    const closeBtn = document.querySelector('.chat-close');
+function setupChat() {
+    const input = document.getElementById('chatInput');
+    const oldBtn = document.getElementById('chatSend');
 
-    if (toggleBtn) {
-        toggleBtn.onclick = () => {
-            chatPanel.style.display = 'block';
-        };
+    if (!input || !oldBtn) {
+        console.error("❌ Chat elements not found");
+        return;
     }
 
-    if (closeBtn) {
-        closeBtn.onclick = () => {
-            chatPanel.style.display = 'none';
-        };
-    }
+    console.log("✅ Chat setup started");
+
+    // ✅ REMOVE OLD BUTTON (THIS IS THE KEY FIX)
+    const newBtn = oldBtn.cloneNode(true);
+    oldBtn.replaceWith(newBtn);
+
+    // ✅ BIND NEW BUTTON EVENT
+    newBtn.addEventListener('click', () => {
+        console.log("✅ Send clicked");
+        sendMessage();
+    });
+
+    // ✅ ENTER KEY
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            console.log("✅ Enter pressed");
+            sendMessage();
+        }
+    });
 }
+``
 
 
 
@@ -133,36 +147,50 @@ function renderDestinations() {
 // ================= CHAT =================
 function setupChat() {
     const input = document.getElementById('chatInput');
-    const sendBtn = document.getElementById('chatSend');
-
-    console.log("Chat setup:", input, sendBtn);
+    let sendBtn = document.getElementById('chatSend');
 
     if (!input || !sendBtn) {
-        console.error("Chat elements not found");
+        console.error("❌ Chat elements not found");
         return;
     }
 
-    // ✅ Send button click
-    sendBtn.onclick = () => sendMessage();
+    console.log("✅ Chat setup initialized");
 
-    // ✅ Enter key
+    // ✅ CLONE button to remove stale handlers
+    const newBtn = sendBtn.cloneNode(true);
+    sendBtn.parentNode.replaceChild(newBtn, sendBtn);
+    sendBtn = newBtn;
+
+    // ✅ Attach fresh click handler
+    sendBtn.addEventListener('click', () => {
+        console.log("✅ Send button clicked");
+        sendMessage();
+    });
+
+    // ✅ Attach Enter key handler
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
+            console.log("✅ Enter pressed");
             sendMessage();
         }
     });
 }
 
+
 function setupQuickReplies() {
     document.querySelectorAll('.quick-reply-chip').forEach(btn => {
         btn.onclick = () => {
             const text = btn.getAttribute('data-question');
+            console.log("✅ Quick reply:", text);
+
             document.getElementById('chatInput').value = text;
             sendMessage();
         };
     });
 }
+
+
 
 
 
