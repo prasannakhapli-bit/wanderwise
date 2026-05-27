@@ -155,12 +155,22 @@ function renderDestinations() {
         return;
     }
 
-    chatBox.innerHTML += `
-        <div class="chat-message user">
-            <div class="chat-bubble">${message}</div>
+    container.innerHTML = filtered.map(dest => `
+        <div class="destination-card">
+            <div class="card-header">
+                <h3 class="card-title">${dest.name}</h3>
+                ${dest.isTopPick ? '<span class="card-badge">✨ Top Pick</span>' : ''}
+                <p class="card-state">${dest.state}</p>
+            </div>
+            <p class="card-description">${dest.description}</p>
+            <div class="card-cost">Cost: ₹${dest.cost.toLocaleString()} per person</div>
+            <div class="card-details"><strong>Top Things to Do:</strong>
+                <ul class="card-details-list">
+                    ${dest.topThings.map(thing => `<li>${thing}</li>`).join('')}
+                </ul>
+            </div>
         </div>
-`;
-``
+    `).join('');
 }
 
 // ================= CHAT =================
