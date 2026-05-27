@@ -18,15 +18,34 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDestinations();
     setupFilterButtons();
     setupChat();
-    setupChatUI(); //✅ ADD THIS
+    setupQuickReplies();
+    setupChatToggle();   // ✅ ADD THIS
+    document.getElementById('chatPanel').style.display = 'none';
+});
 
-    setupQuickReplies(); // ✅ ADD THIS
+function setupChatToggle() {
+    const toggleBtn = document.getElementById('chatToggle');
+    const panel = document.getElementById('chatPanel');
+    const closeBtn = document.querySelector('.chat-close');
+
+    if (toggleBtn) {
+        toggleBtn.onclick = () => {
+            console.log("✅ Chat opened");
+            panel.style.display = 'block';
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            console.log("✅ Chat closed");
+            panel.style.display = 'none';
+        };
+    }
+}
 
     
- // ✅ Hide chat initially
+// ✅ Hide chat initially
     document.getElementById('chatPanel').style.display = 'none';
-
-});
 
 function setupChat() {
     const input = document.getElementById('chatInput');
@@ -136,12 +155,12 @@ function renderDestinations() {
         return;
     }
 
-    container.innerHTML = filtered.map(dest =>
-        `<div class="destination-card">
-            <h3>${dest.name}</h3>
-            <p>${dest.description}</p>
-        </div>`
-    ).join('');
+    chatBox.innerHTML += `
+        <div class="chat-message user">
+            <div class="chat-bubble">${message}</div>
+        </div>
+`;
+``
 }
 
 // ================= CHAT =================
@@ -192,20 +211,26 @@ function setupQuickReplies() {
 
 
 
-
-
 // ================= CHAT CORE =================
 async function sendMessage() {
     console.log("✅ sendMessage triggered");
+
     const input = document.getElementById('chatInput');
     const message = input.value.trim();
     if (!message) return;
 
     input.value = "";
 
-    try {
-        console.log("Calling API:", `${API_URL}/chat`);
+    const chatBox = document.getElementById("chatMessages");
 
+    // ✅ Show user message
+    chatBox.innerHTML += `
+        <div class="chat-message user">
+            <div class="chat-bubble">${message}</div>
+        </div>
+    `;
+
+    try {
         const res = await fetch(`${API_URL}/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -213,9 +238,27 @@ async function sendMessage() {
         });
 
         const data = await res.json();
-        console.log("Chat:", data);
+
+        const reply = data.reply || "Sorry, I didn’t understand that.";
+
+        // ✅ Show Tara reply
+        chatBox.innerHTML += `
+            <div class="chat-message tara">
+                <div class="chat-bubble">${reply}</div>
+            </div>
+        `;
+
+        // ✅ Auto scroll
+        chatBox.scrollTop = chatBox.scrollHeight;
 
     } catch (err) {
         console.error("Chat error:", err);
+
+        chatBox.innerHTML += `
+            <div class="chat-message tara">
+                <div class="chat-bubble">⚠️ Error connecting to server</div>
+            </div>
+        `;
     }
 }
+``
