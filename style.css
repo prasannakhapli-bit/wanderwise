@@ -107,8 +107,8 @@ body {
 /* CARD */
 .destination-card {
     background: white;
-    padding: 1.2rem;
-    border-radius: 12px;
+    border-radius: 18px;
+    overflow: hidden;
     box-shadow: var(--shadow);
     transition: 0.3s;
 }
@@ -116,6 +116,57 @@ body {
 .destination-card:hover {
     transform: translateY(-6px);
     box-shadow: var(--shadow-lg);
+}
+
+.card-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+.card-header {
+    padding: 1rem;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.card-badge {
+    display: inline-block;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.6rem;
+    background: var(--sky-blue);
+    color: white;
+    border-radius: 999px;
+    font-size: 0.8rem;
+}
+
+.card-state {
+    margin: 0.35rem 0 0;
+    color: var(--text-light);
+}
+
+.card-description,
+.card-cost,
+.card-details {
+    padding: 0 1rem 1rem;
+}
+
+.card-cost {
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+.card-details-list {
+    margin: 0.5rem 0 0;
+    padding-left: 1.2rem;
+}
+
+.card-details-list li {
+    margin-bottom: 0.35rem;
 }
 
 /* ================= CHAT ================= */

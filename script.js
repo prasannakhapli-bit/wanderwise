@@ -157,6 +157,7 @@ function renderDestinations() {
 
     container.innerHTML = filtered.map(dest => `
         <div class="destination-card">
+            ${dest.imageUrl ? `<img class="card-image" src="${dest.imageUrl}" alt="${dest.name} view">` : ''}
             <div class="card-header">
                 <h3 class="card-title">${dest.name}</h3>
                 ${dest.isTopPick ? '<span class="card-badge">✨ Top Pick</span>' : ''}
