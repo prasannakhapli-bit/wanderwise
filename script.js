@@ -93,14 +93,14 @@ function renderDestinations() {
     }
 
     container.innerHTML = filtered.map(dest =>
-        '<div class="destination-card">' +
-        '<h3>' + (dest.name || '') + '</h3>' +
-        '<p>' + (dest.description || '') + '</p>' +
-        '</div>'
+        `<div class="destination-card">
+            <h3>${dest.name || ''}</h3>
+            <p>${dest.description || ''}</p>
+        </div>`
     ).join('');
 }
 
-// ================= CHAT UI (FIXED) =================
+// ================= CHAT UI (UPGRADED) =================
 function setupChatUI() {
     const toggleBtn = document.getElementById('chatToggle');
     const chatPanel = document.getElementById('chatPanel');
@@ -114,9 +114,42 @@ function setupChatUI() {
 
     if (closeBtn && chatPanel) {
         closeBtn.addEventListener('click', () => {
+
+            // ✅ Hide
             chatPanel.style.display = 'none';
+
+            // ✅ Reset state
+            state.chatHistory = [];
+
+            // ✅ Reset UI cleanly
+            resetChatUI();
         });
     }
+}
+
+// ✅ NEW FUNCTION (important)
+function resetChatUI() {
+    const container = document.getElementById('chatMessages');
+
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="chat-message tara">
+            <div class="chat-bubble">
+                Namaste! Main Tara hoon, tumhare travel guide. Kahan jaana hai? 😊
+            </div>
+        </div>
+
+        <div class="quick-replies">
+            <button class="quick-reply-chip" data-question="Best place for monsoon?">Best place for monsoon?</button>
+            <button class="quick-reply-chip" data-question="Budget-friendly trips?">Budget-friendly trips?</button>
+            <button class="quick-reply-chip" data-question="Honeymoon destinations?">Honeymoon destinations?</button>
+            <button class="quick-reply-chip" data-question="Adventure spots?">Adventure spots?</button>
+        </div>
+    `;
+
+    // ✅ Rebind
+    setupQuickReplies();
 }
 
 // ================= CHAT =================
@@ -133,14 +166,13 @@ function setupChat() {
     });
 }
 
-// ✅ QUICK REPLIES FIXED
+// ================= QUICK REPLIES =================
 function setupQuickReplies() {
     const chips = document.querySelectorAll('.quick-reply-chip');
 
     chips.forEach(chip => {
         chip.addEventListener('click', () => {
-            const question = chip.getAttribute('data-question'); // ✅ safer
-
+            const question = chip.getAttribute('data-question');
             if (!question) return;
 
             sendMessage(question);
@@ -161,19 +193,15 @@ async function sendMessage(forcedMessage = null) {
     addChatMessage('user', message);
 
     try {
-        console.log("Sending:", cleanMessage);
-
         const res = await fetch(`${API_URL}/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: cleanMessage, history: state.chatHistory })
         });
 
-        if (!res.ok) throw new Error("API failed");
+        if (!res.ok) throw new Error();
 
         const data = await res.json();
-
-        if (!data || !data.reply) throw new Error("Invalid response");
 
         addChatMessage('tara', data.reply, cleanMessage);
 
@@ -197,8 +225,17 @@ function getFallback(msg) {
     if (msg.includes("beach"))
         return "Goa and Andaman are perfect beach destinations.";
 
-    if (msg.includes("city"))
-        return "Jaipur, Delhi, and Mumbai are great city destinations.";
+    if (msg.includes("monsoon"))
+        return "Munnar, Coorg, and Goa are amazing during monsoon.";
+
+    if (msg.includes("adventure"))
+        return "Rishikesh, Manali, and Ladakh are top adventure spots.";
+
+    if (msg.includes("heritage"))
+        return "Jaipur, Udaipur, and Varanasi offer rich heritage experiences.";
+
+    if (msg.includes("hidden"))
+        return "Tawang, Ziro Valley, and Spiti are incredible hidden gems.";
 
     return "Try asking about beaches, mountains, or travel ideas!";
 }
@@ -209,13 +246,12 @@ function addChatMessage(role, text, userQuery = "") {
 
     const div = document.createElement('div');
     div.className = `chat-message ${role}`;
-    div.innerHTML = '<div class="chat-bubble">' + (text || '') + '</div>';
+    div.innerHTML = `<div class="chat-bubble">${text || ''}</div>`;
 
     container.appendChild(div);
 
     container.scrollTop = container.scrollHeight;
 
-    // ✅ FIXED CTA LOGIC
     if (role === 'tara' && userQuery) {
         const keywords = ["mountain", "beach", "city", "trip", "travel", "destination"];
         const shouldShow = keywords.some(k => userQuery.includes(k));
@@ -243,10 +279,11 @@ function openTravelModal(query) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     content.innerHTML =
-        '<h2>Travel Plan</h2>' +
-        '<p>Planning for: ' + (query || '') + '</p>';
+        `<h2>Travel Plan</h2>
+         <p>Planning for: ${query || ''}</p>`;
 
     modal.classList.remove('hidden');
 }
 
 function setupFooter() {}
+``
