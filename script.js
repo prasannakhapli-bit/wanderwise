@@ -18,7 +18,35 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDestinations();
     setupFilterButtons();
     setupChat();
+    setupChatUI(); //✅ ADD THIS
+
+    setupQuickReplies(); // ✅ ADD THIS
+
+    
+ // ✅ Hide chat initially
+    document.getElementById('chatPanel').style.display = 'none';
+
 });
+
+function setupChatUI() {
+    const toggleBtn = document.getElementById('chatToggle');
+    const chatPanel = document.getElementById('chatPanel');
+    const closeBtn = document.querySelector('.chat-close');
+
+    if (toggleBtn) {
+        toggleBtn.onclick = () => {
+            chatPanel.style.display = 'block';
+        };
+    }
+
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            chatPanel.style.display = 'none';
+        };
+    }
+}
+
+
 
 // ================= WELCOME =================
 function setupWelcome() {
@@ -107,17 +135,40 @@ function setupChat() {
     const input = document.getElementById('chatInput');
     const sendBtn = document.getElementById('chatSend');
 
-    if (!input || !sendBtn) return;
+    console.log("Chat setup:", input, sendBtn);
 
-    sendBtn.onclick = sendMessage;
+    if (!input || !sendBtn) {
+        console.error("Chat elements not found");
+        return;
+    }
 
+    // ✅ Send button click
+    sendBtn.onclick = () => sendMessage();
+
+    // ✅ Enter key
     input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') sendMessage();
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
     });
 }
 
+function setupQuickReplies() {
+    document.querySelectorAll('.quick-reply-chip').forEach(btn => {
+        btn.onclick = () => {
+            const text = btn.getAttribute('data-question');
+            document.getElementById('chatInput').value = text;
+            sendMessage();
+        };
+    });
+}
+
+
+
 // ================= CHAT CORE =================
 async function sendMessage() {
+    console.log("✅ sendMessage triggered");
     const input = document.getElementById('chatInput');
     const message = input.value.trim();
     if (!message) return;
