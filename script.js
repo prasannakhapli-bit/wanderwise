@@ -1,4 +1,3 @@
-// ✅ FIXED API URL
 const API_URL =
   (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
     ? 'http://localhost:3000'
@@ -8,10 +7,10 @@ const API_URL =
 let state = {
     destinations: [],
     chatHistory: [],
-    currentFilter: 'all'
+    currentFilter: 'all'    
 };
 
-// === INIT ===
+// INIT
 document.addEventListener('DOMContentLoaded', () => {
     console.log("✅ App Loaded");
 
@@ -19,17 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setupDestinations();
     setupFilterButtons();
     setupChat();
-    setupChatUI();
-    setupQuickReplies();
-
-    const modal = document.getElementById('tripCardModal');
-    const closeBtn = document.querySelector('.modal-close');
-
-    if (modal && closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            modal.classList.add('hidden');
-        });
-    }
 });
 
 // ================= WELCOME =================
@@ -51,9 +39,16 @@ async function setupDestinations() {
         if (!res.ok) throw new Error("Destinations API failed");
 
         const data = await res.json();
-
         state.destinations = data.data || [];
+
+// ✅ FORCE correct default filter
+
+        state.currentFilter = 'all';
+        
         renderDestinations();
+        
+        
+
 
     } catch (err) {
         console.error("Destinations error:", err);
@@ -68,7 +63,7 @@ function setupFilterButtons() {
             buttons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
-            state.currentFilter = btn.dataset.category.toLowerCase();
+            state.currentFilter = (btn.dataset.category || '').toLowerCase();
             renderDestinations();
         });
     });
@@ -94,59 +89,17 @@ function renderDestinations() {
                 (d.category || '').toLowerCase() === filterKey
             );
 
-    if (filtered.length === 0) {
-        container.innerHTML = '<p>No destinations found</p>';
+    if (!filtered.length) {
+        container.innerHTML = "<p>No destinations found</p>";
         return;
     }
 
     container.innerHTML = filtered.map(dest =>
         `<div class="destination-card">
-            <h3>${dest.name || ''}</h3>
-            <p>${dest.description || ''}</p>
+            <h3>${dest.name}</h3>
+            <p>${dest.description}</p>
         </div>`
     ).join('');
-}
-
-// ================= CHAT UI =================
-function setupChatUI() {
-    const toggleBtn = document.getElementById('chatToggle');
-    const chatPanel = document.getElementById('chatPanel');
-    const closeBtn = document.querySelector('.chat-close');
-
-    if (toggleBtn && chatPanel) {
-        toggleBtn.addEventListener('click', () => {
-            chatPanel.style.display = 'block';
-        });
-    }
-
-    if (closeBtn && chatPanel) {
-        closeBtn.addEventListener('click', () => {
-            chatPanel.style.display = 'none';
-            state.chatHistory = [];
-            resetChatUI();
-        });
-    }
-}
-
-function resetChatUI() {
-    const container = document.getElementById('chatMessages');
-    if (!container) return;
-
-    container.innerHTML = `
-        <div class="chat-message tara">
-            <div class="chat-bubble">
-                Namaste! Main Tara hoon, tumhare travel guide. Kahan jaana hai? 😊
-            </div>
-        </div>
-        <div class="quick-replies">
-            <button class="quick-reply-chip" data-question="Best place for monsoon?">Best place for monsoon?</button>
-            <button class="quick-reply-chip" data-question="Budget-friendly trips?">Budget-friendly trips?</button>
-            <button class="quick-reply-chip" data-question="Honeymoon destinations?">Honeymoon destinations?</button>
-            <button class="quick-reply-chip" data-question="Adventure spots?">Adventure spots?</button>
-        </div>
-    `;
-
-    setupQuickReplies();
 }
 
 // ================= CHAT =================
@@ -156,34 +109,20 @@ function setupChat() {
 
     if (!input || !sendBtn) return;
 
-    sendBtn.addEventListener('click', () => sendMessage());
+    sendBtn.onclick = sendMessage;
 
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') sendMessage();
     });
 }
 
-// ================= QUICK REPLIES =================
-function setupQuickReplies() {
-    document.querySelectorAll('.quick-reply-chip').forEach(chip => {
-        chip.onclick = () => {
-            const question = chip.getAttribute('data-question');
-            if (question) sendMessage(question);
-        };
-    });
-}
-
 // ================= CHAT CORE =================
-async function sendMessage(forcedMessage = null) {
+async function sendMessage() {
     const input = document.getElementById('chatInput');
-
-    let message = forcedMessage || (input ? input.value.trim() : "");
+    const message = input.value.trim();
     if (!message) return;
 
-    const cleanMessage = message.toLowerCase().trim();
-    if (input) input.value = "";
-
-    addChatMessage('user', message);
+    input.value = "";
 
     try {
         console.log("Calling API:", `${API_URL}/chat`);
@@ -191,52 +130,13 @@ async function sendMessage(forcedMessage = null) {
         const res = await fetch(`${API_URL}/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: cleanMessage,
-                history: state.chatHistory || []
-            })
+            body: JSON.stringify({ message })
         });
 
-        if (!res.ok) throw new Error("API failed");
-
         const data = await res.json();
-
-        if (!data || !data.reply) throw new Error("Invalid response");
-
-        addChatMessage('tara', data.reply);
-
-        state.chatHistory.push({ role: 'user', content: cleanMessage });
-        state.chatHistory.push({ role: 'assistant', content: data.reply });
+        console.log("Chat:", data);
 
     } catch (err) {
         console.error("Chat error:", err);
-
-        addChatMessage('tara', "Try asking about beaches, mountains, or travel ideas!");
     }
-}
-
-// ================= CHAT UI =================
-function addChatMessage(role, text) {
-    const container = document.getElementById('chatMessages');
-    if (!container) return;
-
-    const div = document.createElement('div');
-    div.className = `chat-message ${role}`;
-    div.innerHTML = `<div class="chat-bubble">${text || ''}</div>`;
-
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-}
-
-// ================= MODAL =================
-function openTravelModal(query) {
-    const modal = document.getElementById('tripCardModal');
-    const content = document.getElementById('tripCardContent');
-
-    content.innerHTML = `
-        <h2>Travel Plan</h2>
-        <p>Planning for: ${query || ''}</p>
-    `;
-
-    modal.classList.remove('hidden');
 }
