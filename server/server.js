@@ -5,7 +5,7 @@ const cors = require('cors');
 const path = require('path');
 
 const destinations = require('./destinations');
-const { streamChatResponseWordByWord } = require('./chatbot');
+const { streamChatResponse } = require('./chatbot');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -63,64 +63,30 @@ app.post('/api/chat', async (req, res) => {
 
     if (!message || typeof message !== 'string' || message.trim() === '') {
       return res.status(400).json({
-        success: false,
-        message: 'Message is required',
-        data: null
+        reply: 'Please enter a valid message.'
       });
     }
 
     if (!process.env.GEMINI_API_KEY) {
       return res.status(500).json({
-        success: false,
-        message: 'Tara ke dimaag mein kuch gadbad ho gayi!',
-        data: null
+        reply: 'Server configuration issue. Please try again later.'
       });
     }
 
-    // ✅ Streaming headers
-    res.setHeader('Content-Type', 'application/x-ndjson');
-    res.setHeader('Transfer-Encoding', 'chunked');
+    const reply = await streamChatResponse(message, history);
 
-    const cleanHistory = Array.isArray(history)
-      ? history.filter(msg => msg.role && msg.content)
-      : [];
+    res.json({ reply });
 
-    await streamChatResponseWordByWord(
-      message,
-      cleanHistory,
-      (chunk) => {
-        const line = JSON.stringify({
-          success: true,
-          message: 'Streaming...',
-          data: { chunk: chunk.chunk }
-        }) + '\n';
+  } catch (err) {
+    console.error("Chat error:", err);
 
-        res.write(line);
-      }
-    );
-
-    res.write(JSON.stringify({
-      success: true,
-      message: 'Stream complete.',
-      data: { done: true }
-    }) + '\n');
-
-    res.end();
-
-  } catch (error) {
-    console.error('Chat error:', error);
-
-    if (res.headersSent) {
-      res.end();
-    } else {
-      res.status(500).json({
-        success: false,
-        message: 'Tara ke dimaag mein kuch gadbad ho gayi!',
-        data: null
-      });
-    }
+    res.status(500).json({
+      reply: 'Sorry, I am having trouble responding right now.'
+    }); 
   }
 });
+
+
 
 // === ERROR HANDLER ===
 app.use((err, req, res, next) => {
