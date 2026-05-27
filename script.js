@@ -7,16 +7,17 @@ const API_URL =
 let state = {
     destinations: [],
     chatHistory: [],
-    currentFilter: 'all',
-    chatOpen: false
+    currentFilter: 'all'
 };
 
 // === INIT ===
 document.addEventListener('DOMContentLoaded', () => {
     setupWelcome();
     setupDestinations();
-    setupChat();
     setupFilterButtons();
+    setupChat();
+    setupChatUI();
+    setupQuickReplies();
 
     const modal = document.getElementById('tripCardModal');
     const closeBtn = document.querySelector('.modal-close');
@@ -34,10 +35,7 @@ function setupWelcome() {
     if (!startBtn) return;
 
     startBtn.addEventListener('click', () => {
-        const section = document.getElementById('destinations');
-        if (section) {
-            section.scrollIntoView({ behavior: 'smooth' });
-        }
+        document.getElementById('destinations')?.scrollIntoView({ behavior: 'smooth' });
     });
 }
 
@@ -90,16 +88,35 @@ function renderDestinations() {
             );
 
     if (filtered.length === 0) {
-        container.innerHTML = `<p>No destinations found</p>`;
+        container.innerHTML = '<p>No destinations found</p>';
         return;
     }
 
-    container.innerHTML = filtered.map(dest => `
-        <div class="destination-card">
-            <h3>${dest.name}</h3>
-            <p>${dest.description}</p>
-        </div>
-    `).join('');
+    container.innerHTML = filtered.map(dest =>
+        '<div class="destination-card">' +
+        '<h3>' + (dest.name || '') + '</h3>' +
+        '<p>' + (dest.description || '') + '</p>' +
+        '</div>'
+    ).join('');
+}
+
+// ================= CHAT UI (FIXED) =================
+function setupChatUI() {
+    const toggleBtn = document.getElementById('chatToggle');
+    const chatPanel = document.getElementById('chatPanel');
+    const closeBtn = document.querySelector('.chat-close');
+
+    if (toggleBtn && chatPanel) {
+        toggleBtn.addEventListener('click', () => {
+            chatPanel.style.display = 'block';
+        });
+    }
+
+    if (closeBtn && chatPanel) {
+        closeBtn.addEventListener('click', () => {
+            chatPanel.style.display = 'none';
+        });
+    }
 }
 
 // ================= CHAT =================
@@ -109,56 +126,127 @@ function setupChat() {
 
     if (!input || !sendBtn) return;
 
-    sendBtn.addEventListener('click', sendMessage);
+    sendBtn.addEventListener('click', () => sendMessage());
 
     input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            sendMessage();
-        }
+        if (e.key === 'Enter') sendMessage();
     });
 }
 
-// ✅ STABLE CHAT (NON-STREAMING)
-async function sendMessage(retryMessage = null) {
+// ✅ QUICK REPLIES FIXED
+function setupQuickReplies() {
+    const chips = document.querySelectorAll('.quick-reply-chip');
+
+    chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const question = chip.getAttribute('data-question'); // ✅ safer
+
+            if (!question) return;
+
+            sendMessage(question);
+        });
+    });
+}
+
+// ================= CHAT CORE =================
+async function sendMessage(forcedMessage = null) {
     const input = document.getElementById('chatInput');
-    const message = retryMessage || input.value.trim();
+    let message = forcedMessage || input.value.trim();
 
     if (!message) return;
 
-    input.value = '';
+    const cleanMessage = message.toLowerCase().trim();
+    input.value = "";
+
     addChatMessage('user', message);
 
     try {
+        console.log("Sending:", cleanMessage);
+
         const res = await fetch(`${API_URL}/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message, history: state.chatHistory })
+            body: JSON.stringify({ message: cleanMessage, history: state.chatHistory })
         });
 
-        if (!res.ok) throw new Error();
+        if (!res.ok) throw new Error("API failed");
 
         const data = await res.json();
 
-        addChatMessage('tara', data.reply);
+        if (!data || !data.reply) throw new Error("Invalid response");
 
-        // ✅ Maintain conversation history
-        state.chatHistory.push({ role: 'user', content: message });
+        addChatMessage('tara', data.reply, cleanMessage);
+
+        state.chatHistory.push({ role: 'user', content: cleanMessage });
         state.chatHistory.push({ role: 'assistant', content: data.reply });
 
     } catch (err) {
-        console.error(err);
-        addChatMessage('tara', "⏳ Just a moment while I reconnect...");
+        console.error("API ERROR:", err);
+
+        const fallback = "⚠️ Quick suggestion: " + getFallback(cleanMessage);
+
+        addChatMessage('tara', fallback, cleanMessage);
     }
 }
 
-// ================= UI =================
-function addChatMessage(role, text) {
+// ================= FALLBACK =================
+function getFallback(msg) {
+    if (msg.includes("mountain"))
+        return "Manali and Gulmarg are beautiful mountain destinations.";
+
+    if (msg.includes("beach"))
+        return "Goa and Andaman are perfect beach destinations.";
+
+    if (msg.includes("city"))
+        return "Jaipur, Delhi, and Mumbai are great city destinations.";
+
+    return "Try asking about beaches, mountains, or travel ideas!";
+}
+
+// ================= CHAT UI =================
+function addChatMessage(role, text, userQuery = "") {
+    const container = document.getElementById('chatMessages');
+
     const div = document.createElement('div');
     div.className = `chat-message ${role}`;
-    div.innerHTML = `<div class="chat-bubble">${text}</div>`;
-    document.getElementById('chatMessages').appendChild(div);
-    return div;
+    div.innerHTML = '<div class="chat-bubble">' + (text || '') + '</div>';
+
+    container.appendChild(div);
+
+    container.scrollTop = container.scrollHeight;
+
+    // ✅ FIXED CTA LOGIC
+    if (role === 'tara' && userQuery) {
+        const keywords = ["mountain", "beach", "city", "trip", "travel", "destination"];
+        const shouldShow = keywords.some(k => userQuery.includes(k));
+
+        if (shouldShow) {
+            const oldBtn = container.querySelector('.plan-btn:last-child');
+            if (oldBtn) oldBtn.remove();
+
+            const btn = document.createElement('button');
+            btn.innerText = "Plan My Travel";
+            btn.className = "plan-btn";
+
+            btn.onclick = () => openTravelModal(userQuery);
+
+            container.appendChild(btn);
+        }
+    }
+}
+
+// ================= MODAL =================
+function openTravelModal(query) {
+    const modal = document.getElementById('tripCardModal');
+    const content = document.getElementById('tripCardContent');
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    content.innerHTML =
+        '<h2>Travel Plan</h2>' +
+        '<p>Planning for: ' + (query || '') + '</p>';
+
+    modal.classList.remove('hidden');
 }
 
 function setupFooter() {}
-``

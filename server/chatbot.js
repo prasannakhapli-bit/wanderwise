@@ -1,3 +1,5 @@
+const fetch = require('node-fetch');   // ✅ REQUIRED FIX
+
 const destinations = require('./destinations');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -26,50 +28,70 @@ ${destList}
 `;
 }
 
-// ✅ SINGLE CLEAN FUNCTION (NO STREAMING)
 async function streamChatResponse(userMessage, history) {
-    const systemPrompt = buildSystemPrompt();
+    try {
+        const systemPrompt = buildSystemPrompt();
 
-    const messages = [
-        {
-            role: "model",
-            parts: [{ text: systemPrompt }]
-        },
-        ...history.map(msg => ({
-            role: msg.role === "assistant" ? "model" : "user",
-            parts: [{ text: msg.content }]
-        })),
-        {
-            role: "user",
-            parts: [{ text: userMessage }]
+        const messages = [
+            {
+                role: "model",
+                parts: [{ text: systemPrompt }]
+            },
+            ...(Array.isArray(history) ? history : []).map(msg => ({
+                role: msg.role === "assistant" ? "model" : "user",
+                parts: [{ text: msg.content }]
+            })),
+            {
+                role: "user",
+                parts: [{ text: userMessage.toLowerCase().trim() }]
+            }
+        ];
+
+        const response = await fetch(
+            `${GEMINI_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: messages,
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 150
+                    }
+                })
+            }
+        );
+
+        if (!response.ok) {
+            console.error("Gemini API error:", await response.text());
+            throw new Error('Gemini API error');
         }
-    ];
 
-    const response = await fetch(
-        `${GEMINI_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-        {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: messages,
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 150
-                }
-            })
+        const data = await response.json();
+
+        return (
+            data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+            "I'm not sure about that, but I can help you plan a trip! Try asking about beaches, mountains, or cities."
+        );
+
+    } catch (error) {
+        console.error("Chatbot Error:", error);
+
+        const msg = userMessage.toLowerCase();
+
+        if (msg.includes("mountain")) {
+            return "Manali and Gulmarg are great mountain destinations.";
         }
-    );
 
-    if (!response.ok) {
-        throw new Error('Gemini API error');
+        if (msg.includes("beach")) {
+            return "Goa and Andaman are excellent beach destinations.";
+        }
+
+        return "⚠️ Temporary issue — meanwhile, you can explore mountains like Manali, beaches like Goa, or cities like Jaipur.";
     }
-
-    const data = await response.json();
-
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "Sorry, I couldn't generate a response.";
 }
 
 module.exports = {
     streamChatResponse
 };
+``

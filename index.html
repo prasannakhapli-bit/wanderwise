@@ -8,15 +8,16 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Audio: Ambient ocean waves (muted by default) -->
+
+    <!-- Audio -->
     <audio id="ambientAudio" loop>
         <source src="data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==" type="audio/wav">
     </audio>
 
-    <!-- Mute/Unmute Toggle -->
-    <button id="audioToggle" class="audio-toggle" title="Toggle ambient sound">🔇</button>
+    <!-- Audio Toggle -->
+    <button id="audioToggle" class="audio-toggle">🔇</button>
 
-    <!-- Welcome Screen -->
+    <!-- Welcome -->
     <section id="welcome" class="welcome">
         <div class="welcome-content">
             <h1 class="welcome-tagline">Duniya Dekhni Hai?<br>Chalo Shuru Karte Hain</h1>
@@ -25,32 +26,28 @@
         <canvas id="planeCanvas" class="plane-canvas"></canvas>
     </section>
 
-    <!-- Navigation Scroll Anchor -->
+    <!-- Navigation -->
     <nav class="scroll-nav">
         <a href="#destinations">Destinations</a>
         <a href="#about">About</a>
     </nav>
 
-    <!-- Destinations Section -->
+    <!-- Destinations -->
     <section id="destinations" class="destinations">
         <h2>Explore 16 Amazing Destinations</h2>
-        
+
         <div class="filter-bar">
             <button class="filter-btn active" data-category="all">All</button>
-            
             <button class="filter-btn" data-category="mountains">Mountains</button>
             <button class="filter-btn" data-category="beaches">Beaches</button>
             <button class="filter-btn" data-category="heritage cities">Heritage Cities</button>
             <button class="filter-btn" data-category="hidden gems">Hidden Gems</button>
-
         </div>
 
-        <div id="destinationsList" class="destinations-grid">
-            <!-- Cards loaded dynamically -->
-        </div>
+        <div id="destinationsList" class="destinations-grid"></div>
     </section>
 
-    <!-- About Section -->
+    <!-- About -->
     <section id="about" class="about">
         <div class="compass-container">
             <div class="compass">🧭</div>
@@ -61,7 +58,7 @@
         </div>
     </section>
 
-    <!-- Footer Ticker -->
+    <!-- Footer -->
     <footer class="footer-ticker">
         <div class="ticker-wrap">
             <div class="ticker-content">
@@ -74,46 +71,55 @@
                 <span class="ticker-item">Duniya bahut badi hai</span>
                 <span class="ticker-item">•</span>
                 <span class="ticker-item">Adventure awaits</span>
-                <span class="ticker-item">•</span>
             </div>
         </div>
     </footer>
 
-    <!-- Chat Panel -->
+    <!-- ✅ ✅ ONLY CHAT SYSTEM (CLEAN) -->
     <div id="chatContainer" class="chat-container">
+
+        <!-- Open Button -->
         <button id="chatToggle" class="chat-toggle">💬</button>
-        
+
+        <!-- Chat Panel -->
         <div id="chatPanel" class="chat-panel">
+
+            <!-- Header -->
             <div class="chat-header">
                 <h3>Chat with Tara</h3>
                 <button class="chat-close">✕</button>
             </div>
 
+            <!-- Messages -->
             <div id="chatMessages" class="chat-messages">
-                <!-- Welcome message -->
+
+                <!-- Welcome -->
                 <div class="chat-message tara">
                     <div class="chat-bubble">
                         Namaste! Main Tara hoon, tumhare travel guide. Kahan jaana hai? 😊
                     </div>
                 </div>
 
-                <!-- Quick reply chips (shown on first visit) -->
+                <!-- Quick Replies -->
                 <div class="quick-replies" id="quickReplies">
                     <button class="quick-reply-chip" data-question="Best place for monsoon?">Best place for monsoon?</button>
                     <button class="quick-reply-chip" data-question="Budget-friendly trips?">Budget-friendly trips?</button>
                     <button class="quick-reply-chip" data-question="Honeymoon destinations?">Honeymoon destinations?</button>
                     <button class="quick-reply-chip" data-question="Adventure spots?">Adventure spots?</button>
                 </div>
+
             </div>
 
+            <!-- Input -->
             <div class="chat-input-area">
                 <input id="chatInput" type="text" class="chat-input" placeholder="Ask Tara...">
                 <button id="chatSend" class="chat-send">Send</button>
             </div>
+
         </div>
     </div>
 
-    <!-- Trip Card Modal (for booking) -->
+    <!-- Modal -->
     <div id="tripCardModal" class="modal hidden">
         <div class="modal-content">
             <button class="modal-close">✕</button>
@@ -121,6 +127,8 @@
         </div>
     </div>
 
-    <script src="script.js?v=10"></script>
+    <!-- Scripts -->
+    <script src="script.js?v=11"></script>
+
 </body>
 </html>
