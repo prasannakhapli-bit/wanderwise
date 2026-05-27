@@ -3,7 +3,7 @@ const fetch = require('node-fetch');   // ✅ REQUIRED FIX
 const destinations = require('./destinations');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+const GEMINI_MODEL = 'gemini-1.5-flash';
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 function buildSystemPrompt() {
