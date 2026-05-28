@@ -307,6 +307,43 @@ body {
     padding: 8px 12px;
     color: white;
     border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.chat-send:hover {
+    background: #E85D04;
+    transform: scale(1.05);
+}
+
+/* ✅ TRAVEL PLANNING ACTIONS */
+.travel-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    margin-left: 5px;
+}
+
+.travel-action-btn {
+    background: linear-gradient(135deg, #34D399, #10B981);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: left;
+    max-width: 200px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.travel-action-btn:hover {
+    background: linear-gradient(135deg, #10B981, #059669);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
 }
 
 /* ================= RESPONSIVE ================= */

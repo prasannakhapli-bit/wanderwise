@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFilterButtons();
     setupChat();
     setupQuickReplies();
-    setupChatToggle();   // ✅ ADD THIS
+    setupChatToggle();
     document.getElementById('chatPanel').style.display = 'none';
 });
 
@@ -43,44 +43,6 @@ function setupChatToggle() {
     }
 }
 
-    
-// ✅ Hide chat initially
-    document.getElementById('chatPanel').style.display = 'none';
-
-function setupChat() {
-    const input = document.getElementById('chatInput');
-    const oldBtn = document.getElementById('chatSend');
-
-    if (!input || !oldBtn) {
-        console.error("❌ Chat elements not found");
-        return;
-    }
-
-    console.log("✅ Chat setup started");
-
-    // ✅ REMOVE OLD BUTTON (THIS IS THE KEY FIX)
-    const newBtn = oldBtn.cloneNode(true);
-    oldBtn.replaceWith(newBtn);
-
-    // ✅ BIND NEW BUTTON EVENT
-    newBtn.addEventListener('click', () => {
-        console.log("✅ Send clicked");
-        sendMessage();
-    });
-
-    // ✅ ENTER KEY
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            console.log("✅ Enter pressed");
-            sendMessage();
-        }
-    });
-}
-``
-
-
-
 // ================= WELCOME =================
 function setupWelcome() {
     const startBtn = document.getElementById('startBtn');
@@ -102,14 +64,9 @@ async function setupDestinations() {
         const data = await res.json();
         state.destinations = data.data || [];
 
-// ✅ FORCE correct default filter
-
         state.currentFilter = 'all';
         
         renderDestinations();
-        
-        
-
 
     } catch (err) {
         console.error("Destinations error:", err);
@@ -174,7 +131,7 @@ function renderDestinations() {
     `).join('');
 }
 
-// ================= CHAT =================
+// ================= CHAT SETUP =================
 function setupChat() {
     const input = document.getElementById('chatInput');
     let sendBtn = document.getElementById('chatSend');
@@ -207,7 +164,6 @@ function setupChat() {
     });
 }
 
-
 function setupQuickReplies() {
     document.querySelectorAll('.quick-reply-chip').forEach(btn => {
         btn.onclick = () => {
@@ -220,7 +176,56 @@ function setupQuickReplies() {
     });
 }
 
+// ================= TRAVEL PLANNING HELPERS =================
 
+// ✅ HELPER: Detect destinations mentioned in text
+function extractDestinations(text) {
+    const mentioned = [];
+    if (!state.destinations.length) return mentioned;
+    
+    const lowerText = text.toLowerCase();
+    state.destinations.forEach(dest => {
+        if (lowerText.includes(dest.name.toLowerCase())) {
+            mentioned.push(dest);
+        }
+    });
+    return mentioned;
+}
+
+// ✅ HELPER: Create travel planning action
+function createTravelAction(destination) {
+    return `
+        <button class="travel-action-btn" onclick="planTravel('${destination.name}')">
+            ✈️ Plan Travel to ${destination.name}
+        </button>
+    `;
+}
+
+// ✅ HELPER: Handle travel planning click
+function planTravel(destName) {
+    console.log("🧳 Planning travel to:", destName);
+    
+    const dest = state.destinations.find(d => d.name === destName);
+    if (!dest) return;
+    
+    // ✅ Scroll to destinations section
+    document.getElementById('destinations')?.scrollIntoView({ behavior: 'smooth' });
+    
+    // ✅ Filter to show this destination
+    state.currentFilter = dest.category.toLowerCase();
+    renderDestinations();
+    
+    // ✅ Highlight the destination card
+    setTimeout(() => {
+        const cards = document.querySelectorAll('.destination-card');
+        cards.forEach(card => {
+            if (card.textContent.includes(destName)) {
+                card.style.boxShadow = '0 0 20px rgba(255, 165, 0, 0.8)';
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }, 300);
+}
 
 // ================= CHAT CORE =================
 async function sendMessage() {
@@ -250,14 +255,29 @@ async function sendMessage() {
 
         const data = await res.json();
 
-        const reply = data.reply || "Sorry, I didn’t understand that.";
+        const reply = data.reply || "Sorry, I didn't understand that.";
+        
+        // ✅ Detect destinations mentioned in reply
+        const mentionedDests = extractDestinations(reply);
 
         // ✅ Show Tara reply
-        chatBox.innerHTML += `
+        let replyHTML = `
             <div class="chat-message tara">
                 <div class="chat-bubble">${reply}</div>
-            </div>
         `;
+        
+        // ✅ Add travel planning buttons if destinations mentioned
+        if (mentionedDests.length > 0) {
+            replyHTML += `
+                <div class="travel-actions">
+                    ${mentionedDests.map(d => createTravelAction(d)).join('')}
+                </div>
+            `;
+        }
+        
+        replyHTML += `</div>`;
+        
+        chatBox.innerHTML += replyHTML;
 
         // ✅ Auto scroll
         chatBox.scrollTop = chatBox.scrollHeight;
@@ -272,4 +292,3 @@ async function sendMessage() {
         `;
     }
 }
-``
