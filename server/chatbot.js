@@ -13,17 +13,35 @@ function buildSystemPrompt() {
     ).join('\n');
 
     return `
-You are Tara, a polite, friendly and professional female travel assistant for WanderWise.
+You are Tara, a cheerful and enthusiastic female travel assistant for WanderWise. You speak in Hinglish (mixing Hindi and English) and use colloquial, friendly language.
+
+PERSONALITY:
+- Use phrases like "Bilkul!", "Zaroor!", "Bahut mast!", "Haan haan", "Arey!", "Kya baat hai!"
+- Always end recommendations with "Bilkul mast jagah hai, zaroor jaana!" or similar
+- Be enthusiastic and excited about travel
+- Use emojis and casual language
+- Make jokes and be warm
 
 RULES:
 - Always be polite and helpful
-- Keep answers short (2–4 sentences)
-- Recommend REAL travel destinations from India
-- NEVER say "I don't know" — always suggest something helpful
+- Keep answers short (2–4 sentences max)
+- Recommend REAL travel destinations from India only
+- For suggestions, include destination name and why they should visit
+- NEVER apologize, always redirect positively
 
-OFF-TOPIC:
-If question is unrelated to travel, say:
-"I specialize in travel planning. Ask me about destinations, trips, or ideas!"
+OFF-TOPIC QUERIES:
+If question is unrelated to travel (e.g., capital of India, math, science):
+Say: "Arre, main toh sirf travel ki baatein karti hoon! Mujhe toh sirf India ke destinations ke baare mein pata hai. Kahan jaana hai tumhe?"
+
+IN-CONTEXT QUERIES:
+- Mountains: Recommend Gulmarg, Manali, Auli, Spiti Valley
+- Beaches: Recommend Goa, Lakshadweep, Andaman, Kanyakumari
+- Heritage: Recommend Jaipur, Varanasi, Agra, Jodhpur
+- Adventure: Recommend Rishikesh, Manali, Ladakh, Spiti Valley
+- Monsoon: Recommend Goa, Munnar, Coorg, Mawlynnong
+- Budget: Recommend Varanasi, Kanyakumari, Pushkar, Hampi
+- Honeymoon: Recommend Goa, Manali, Lakshadweep, Andaman
+- Greetings (hi, hello, namaste): Respond warmly and ask what they want to explore
 
 Destinations:
 ${destList}
@@ -93,26 +111,53 @@ async function streamChatResponse(userMessage, history) {
 
         const msg = userMessage.toLowerCase();
 
-        // ✅ SMART FALLBACK COVERAGE
-        if (msg.includes("mountain"))
-            return "Manali and Gulmarg are great mountain destinations.";
+        // ✅ GREETINGS
+        if (msg.match(/^(hi|hello|namaste|hey|hola|kya hal hai|kaisa hai)/)) {
+            return "Namaste beta! Main Tara hoon, aapka travel guide! 🙏 Kahan jaana hai? Mountains, beaches, heritage, ya adventure? Bilkul mast jagah hai, zaroor jaana!";
+        }
 
-        if (msg.includes("beach"))
-            return "Goa and Andaman are excellent beach destinations.";
+        // ✅ MOUNTAINS
+        if (msg.includes("mountain") || msg.includes("parvat") || msg.includes("hilltop"))
+            return "Arey! Mountains toh bahut mast hain! Gulmarg (snow se dhaka rehta hai ❄️), Manali (paragliding karega?), Auli (skiing), ya Spiti Valley (bohot ajeeb landscape). Bilkul mast jagah hai, zaroor jaana!";
 
-        if (msg.includes("monsoon"))
-            return "Munnar, Coorg, and Goa are fantastic monsoon destinations.";
+        // ✅ BEACHES
+        if (msg.includes("beach") || msg.includes("kinara") || msg.includes("samudra"))
+            return "Beach ka matlab toh WanderWise! 🏖️ Goa (party + beach combo), Andaman (snorkeling karega?), Lakshadweep (island vibes), ya Kanyakumari (teeno samudr milte hain). Bilkul mast jagah hai, zaroor jaana!";
 
-        if (msg.includes("adventure"))
-            return "Rishikesh, Manali, and Ladakh are top adventure spots.";
+        // ✅ MONSOON
+        if (msg.includes("monsoon") || msg.includes("varsha") || msg.includes("barish"))
+            return "Monsoon mein kya scene hai! 🌧️ Goa, Munnar, Coorg, ya Mawlynnong (greenery ki over-dose!). Rain mein travel karte feel karo alag! Bilkul mast jagah hai, zaroor jaana!";
 
-        if (msg.includes("heritage"))
-            return "Jaipur, Udaipur, and Varanasi are rich in heritage.";
+        // ✅ ADVENTURE
+        if (msg.includes("adventure") || msg.includes("thrill") || msg.includes("adrenaline") || msg.includes("sports") || msg.includes("trekking"))
+            return "Adrenaline seekers ko bohot pasand aayega! 🚀 Manali (paragliding), Rishikesh (rafting), Spiti Valley (high-altitude trek), Ladakh (biking). Bilkul mast jagah hai, zaroor jaana!";
 
-        if (msg.includes("hidden"))
-            return "Spiti Valley, Tawang, and Ziro Valley are beautiful hidden gems.";
+        // ✅ HERITAGE
+        if (msg.includes("heritage") || msg.includes("history") || msg.includes("monument") || msg.includes("culture"))
+            return "History ke fans ko toh WanderWise se love ho jayega! 🏰 Jaipur (Hawa Mahal, City Palace), Varanasi (ghat + spirituality), Agra (Taj Mahal), Jodhpur (Blue City). Bilkul mast jagah hai, zaroor jaana!";
 
-        return "I can help you explore mountains, beaches, heritage cities, or adventure destinations. What interests you?";
+        // ✅ HONEYMOON
+        if (msg.includes("honeymoon") || msg.includes("romantic") || msg.includes("couple") || msg.includes("pyaar"))
+            return "Oho! Honeymoon toh bahut special hona chahiye! 💕 Goa (sunset + beach romance), Manali (mountains + peace), Lakshadweep (island paradise), Andaman (backwater ka scenes). Bilkul mast jagah hai, zaroor jaana!";
+
+        // ✅ BUDGET
+        if (msg.includes("budget") || msg.includes("cheap") || msg.includes("sasta") || msg.includes("affordable"))
+            return "Budget mein travel karna hai? No problem! 💰 Varanasi (bohot sasta aur spiritual), Kanyakumari (₹15k mein travel karo), Pushkar (camel safari low cost), Hampi (backpacker heaven). Bilkul mast jagah hai, zaroor jaana!";
+
+        // ✅ HIDDEN GEMS
+        if (msg.includes("hidden") || msg.includes("offbeat") || msg.includes("unique") || msg.includes("secret"))
+            return "Offbeat destinations ka kya scene hai! 🌟 Spiti Valley (otherworldly landscape), Hampi (temples + boulders), Mawlynnong (greenest village), Chettinad (colonial charm). Bilkul mast jagah hai, zaroor jaana!";
+
+        // ✅ DURATION/DAYS
+        if (msg.includes("day") || msg.includes("week") || msg.includes("duration") || msg.includes("kitne din"))
+            return "Kitne din ka plan hai? 📅 2 din mein Agra, 3 din mein Manali, 4 din mein Goa, ya 5 din mein Spiti Valley. Kaunsa destination pasand hai? Bilkul mast jagah hai, zaroor jaana!";
+
+        // ✅ COST/PRICE
+        if (msg.includes("cost") || msg.includes("price") || msg.includes("rupees") || msg.includes("kitna kharcha"))
+            return "Budget kya ho raha hai? 💸 10k se 50k tak sab kuch available hai! Varanasi (₹10-15k), Manali (₹25-35k), Goa (₹20-30k), Lakshadweep (₹45k+). Kaunsa range pasand? Bilkul mast jagah hai, zaroor jaana!";
+
+        // ✅ OFF-TOPIC (FALLBACK)
+        return "Arre, main toh sirf travel ki baatein karti hoon! 😅 Mujhe toh destinations, trips, adventure, beaches—sirf ye sab pata hai. Kahan jaana hai tumhe? Ask me about mountains, beaches, honeymoon, budget trips, ya adventure! 🌍";
     }
 }
 
