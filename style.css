@@ -208,10 +208,35 @@ body {
     color: white;
     padding: 1rem;
     font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.chat-header h3 {
+    margin: 0;
+    flex: 1;
 }
 
 .chat-close {
     cursor: pointer;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: 0.2s;
+}
+
+.chat-close:hover {
+    background: rgba(255,255,255,0.2);
 }
 
 /* MESSAGES */
