@@ -39,6 +39,10 @@ function setupChatToggle() {
         closeBtn.onclick = () => {
             console.log("✅ Chat closed");
             panel.style.display = 'none';
+            // Clear chat history from UI when user closes the panel
+            state.chatHistory = [];
+            const chatBox = document.getElementById('chatMessages');
+            if (chatBox) chatBox.innerHTML = '';
         };
     }
 }
@@ -228,23 +232,59 @@ function planTravel(destName) {
 }
 
 // ================= CHAT CORE =================
+// Render chat history to UI and scroll
+function renderChatMessages() {
+    const chatBox = document.getElementById('chatMessages');
+    if (!chatBox) return;
+
+    chatBox.innerHTML = state.chatHistory.map(item => {
+        if (item.role === 'user') {
+            return `
+                <div class="chat-message user">
+                    <div class="chat-bubble">${item.content}</div>
+                </div>
+            `;
+        } else {
+            // assistant (Tara)
+            const mentioned = extractDestinations(item.content);
+            let assistantHTML = `
+                <div class="chat-message tara">
+                    <div class="chat-bubble">${item.content}</div>`;
+
+            if (mentioned.length > 0) {
+                assistantHTML += `
+                    <div class="travel-actions">
+                        ${mentioned.map(d => createTravelAction(d)).join('')}
+                    </div>`;
+            }
+
+            assistantHTML += `</div>`;
+            return assistantHTML;
+        }
+    }).join('');
+
+    // allow layout then scroll
+    setTimeout(() => {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 50);
+}
+
 async function sendMessage() {
     console.log("✅ sendMessage triggered");
 
     const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('chatSend');
     const message = input.value.trim();
     if (!message) return;
 
-    input.value = "";
+    // push user message to state and render
+    state.chatHistory.push({ role: 'user', content: message });
+    renderChatMessages();
 
-    const chatBox = document.getElementById("chatMessages");
-
-    // ✅ Show user message
-    chatBox.innerHTML += `
-        <div class="chat-message user">
-            <div class="chat-bubble">${message}</div>
-        </div>
-    `;
+    // clear input and disable while waiting
+    input.value = '';
+    input.disabled = true;
+    if (sendBtn) sendBtn.disabled = true;
 
     try {
         const res = await fetch(`${API_URL}/chat`, {
@@ -254,41 +294,19 @@ async function sendMessage() {
         });
 
         const data = await res.json();
-
         const reply = data.reply || "Sorry, I didn't understand that.";
-        
-        // ✅ Detect destinations mentioned in reply
-        const mentionedDests = extractDestinations(reply);
 
-        // ✅ Show Tara reply
-        let replyHTML = `
-            <div class="chat-message tara">
-                <div class="chat-bubble">${reply}</div>
-        `;
-        
-        // ✅ Add travel planning buttons if destinations mentioned
-        if (mentionedDests.length > 0) {
-            replyHTML += `
-                <div class="travel-actions">
-                    ${mentionedDests.map(d => createTravelAction(d)).join('')}
-                </div>
-            `;
-        }
-        
-        replyHTML += `</div>`;
-        
-        chatBox.innerHTML += replyHTML;
-
-        // ✅ Auto scroll
-        chatBox.scrollTop = chatBox.scrollHeight;
+        // push assistant reply and render
+        state.chatHistory.push({ role: 'assistant', content: reply });
+        renderChatMessages();
 
     } catch (err) {
         console.error("Chat error:", err);
-
-        chatBox.innerHTML += `
-            <div class="chat-message tara">
-                <div class="chat-bubble">⚠️ Error connecting to server</div>
-            </div>
-        `;
+        state.chatHistory.push({ role: 'assistant', content: '⚠️ Error connecting to server' });
+        renderChatMessages();
+    } finally {
+        input.disabled = false;
+        if (sendBtn) sendBtn.disabled = false;
+        input.focus();
     }
 }
