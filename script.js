@@ -32,6 +32,8 @@ function setupChatToggle() {
         toggleBtn.onclick = () => {
             console.log("✅ Chat opened");
             panel.style.display = 'block';
+            // Always render current state when opening (fixes persistence after close)
+            renderChatMessages();
         };
     }
 
@@ -41,8 +43,7 @@ function setupChatToggle() {
             panel.style.display = 'none';
             // Clear chat history from UI when user closes the panel
             state.chatHistory = [];
-            const chatBox = document.getElementById('chatMessages');
-            if (chatBox) chatBox.innerHTML = '';
+            renderChatMessages(); // Re-render empty state
         };
     }
 }
@@ -237,6 +238,27 @@ function renderChatMessages() {
     const chatBox = document.getElementById('chatMessages');
     if (!chatBox) return;
 
+    // If no chat history, show initial welcome message
+    if (state.chatHistory.length === 0) {
+        chatBox.innerHTML = `
+            <div class="chat-message tara">
+                <div class="chat-bubble">
+                    Namaste! Main Tara hoon, tumhare travel guide. Kahan jaana hai? 😊
+                </div>
+            </div>
+            <div class="quick-replies" id="quickReplies">
+                <button class="quick-reply-chip" data-question="Best place for monsoon?">Best place for monsoon?</button>
+                <button class="quick-reply-chip" data-question="Budget-friendly trips?">Budget-friendly trips?</button>
+                <button class="quick-reply-chip" data-question="Honeymoon destinations?">Honeymoon destinations?</button>
+                <button class="quick-reply-chip" data-question="Adventure spots?">Adventure spots?</button>
+            </div>
+        `;
+        // Re-attach quick reply handlers
+        setupQuickReplies();
+        return;
+    }
+
+    // Render full chat history
     chatBox.innerHTML = state.chatHistory.map(item => {
         if (item.role === 'user') {
             return `

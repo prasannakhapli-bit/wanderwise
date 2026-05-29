@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist - WanderWise</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        .wishlist-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .wishlist-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .wishlist-header h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .wishlist-empty {
+            text-align: center;
+            padding: 40px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            color: #666;
+        }
+
+        .wishlist-empty p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .wishlist-empty a {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 30px;
+            background: #FF6B6B;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .wishlist-empty a:hover {
+            background: #FF5252;
+        }
+
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .wishlist-item {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .wishlist-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .wishlist-item-image {
+            width: 100%;
+            height: 200px;
+            background: #ddd;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .wishlist-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .wishlist-item-remove {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .wishlist-item-remove:hover {
+            background: #FF6B6B;
+            color: white;
+        }
+
+        .wishlist-item-content {
+            padding: 15px;
+        }
+
+        .wishlist-item-name {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .wishlist-item-location {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .wishlist-item-rating {
+            color: #FF6B6B;
+            margin-bottom: 10px;
+        }
+
+        .wishlist-item-price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #FF6B6B;
+            margin-bottom: 10px;
+        }
+
+        .wishlist-item-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .wishlist-item-actions button {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: opacity 0.3s;
+        }
+
+        .btn-explore {
+            background: #FF6B6B;
+            color: white;
+        }
+
+        .btn-explore:hover {
+            opacity: 0.9;
+        }
+
+        .btn-share {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-share:hover {
+            background: #efefef;
+        }
+
+        .wishlist-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .wishlist-count {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        .wishlist-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .wishlist-actions button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn-clear-all {
+            background: #ddd;
+            color: #333;
+        }
+
+        .btn-clear-all:hover {
+            background: #ccc;
+        }
+
+        .btn-export {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #45a049;
+        }
+
+        @media (max-width: 768px) {
+            .wishlist-container {
+                margin: 20px 10px;
+                padding: 10px;
+            }
+
+            .wishlist-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .wishlist-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .wishlist-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wishlist-container">
+        <div class="wishlist-header">
+            <h1>✨ My Wishlist</h1>
+            <p>Your dream destinations awaiting exploration</p>
+        </div>
+
+        <div class="wishlist-controls">
+            <span class="wishlist-count">You have <strong id="wishlist-count">0</strong> destinations in your wishlist</span>
+            <div class="wishlist-actions">
+                <button class="btn-export" id="btn-export">Export as PDF</button>
+                <button class="btn-clear-all" id="btn-clear-all">Clear All</button>
+            </div>
+        </div>
+
+        <div id="wishlist-content">
+            <div class="wishlist-empty">
+                <p>🏖️ Your wishlist is empty!</p>
+                <p>Start adding your dream destinations to plan your next adventure.</p>
+                <a href="/">Explore Destinations</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Wishlist management script
+        const WISHLIST_KEY = 'wanderwise_wishlist';
+
+        // Load wishlist from localStorage
+        function loadWishlist() {
+            const data = localStorage.getItem(WISHLIST_KEY);
+            return data ? JSON.parse(data) : [];
+        }
+
+        // Save wishlist to localStorage
+        function saveWishlist(wishlist) {
+            localStorage.setItem(WISHLIST_KEY, JSON.stringify(wishlist));
+        }
+
+        // Remove item from wishlist
+        function removeFromWishlist(id) {
+            let wishlist = loadWishlist();
+            wishlist = wishlist.filter(item => item.id !== id);
+            saveWishlist(wishlist);
+            renderWishlist();
+        }
+
+        // Clear all wishlist items
+        function clearWishlist() {
+            if (confirm('Are you sure you want to clear all destinations from your wishlist?')) {
+                saveWishlist([]);
+                renderWishlist();
+            }
+        }
+
+        // Export wishlist as PDF (simple version)
+        function exportWishlist() {
+            const wishlist = loadWishlist();
+            if (wishlist.length === 0) {
+                alert('Your wishlist is empty!');
+                return;
+            }
+
+            let content = 'WANDERWISE WISHLIST\n';
+            content += '===================\n\n';
+            
+            wishlist.forEach((item, index) => {
+                content += `${index + 1}. ${item.name}\n`;
+                content += `   Location: ${item.state}\n`;
+                content += `   Category: ${item.category}\n`;
+                content += `   Cost: ₹${item.cost}\n`;
+                content += `   Best Season: ${item.bestSeason}\n`;
+                content += `   Ideal Duration: ${item.idealDays} days\n\n`;
+            });
+
+            // Create and download text file
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+            element.setAttribute('download', 'wanderwise-wishlist.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+
+            alert('Wishlist exported successfully!');
+        }
+
+        // Render wishlist items
+        function renderWishlist() {
+            const wishlist = loadWishlist();
+            const content = document.getElementById('wishlist-content');
+            const countSpan = document.getElementById('wishlist-count');
+
+            countSpan.textContent = wishlist.length;
+
+            if (wishlist.length === 0) {
+                content.innerHTML = `
+                    <div class="wishlist-empty">
+                        <p>🏖️ Your wishlist is empty!</p>
+                        <p>Start adding your dream destinations to plan your next adventure.</p>
+                        <a href="/">Explore Destinations</a>
+                    </div>
+                `;
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="wishlist-grid">
+                    ${wishlist.map(item => `
+                        <div class="wishlist-item">
+                            <div class="wishlist-item-image">
+                                <img src="${item.imageUrl}" alt="${item.name}" />
+                                <button class="wishlist-item-remove" onclick="removeFromWishlist(${item.id})">✕</button>
+                            </div>
+                            <div class="wishlist-item-content">
+                                <div class="wishlist-item-name">${item.name}</div>
+                                <div class="wishlist-item-location">${item.state}</div>
+                                <div class="wishlist-item-rating">Rating: ${item.adventureLevel}/5</div>
+                                <div class="wishlist-item-price">₹${item.cost}</div>
+                                <div class="wishlist-item-actions">
+                                    <button class="btn-explore" onclick="window.location.href='/?destination=${item.id}'">Explore</button>
+                                    <button class="btn-share" onclick="shareWishlist(${item.id})">Share</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Share wishlist item
+        function shareWishlist(id) {
+            const wishlist = loadWishlist();
+            const item = wishlist.find(w => w.id === id);
+            
+            if (item && navigator.share) {
+                navigator.share({
+                    title: `Check out ${item.name}!`,
+                    text: `${item.description}\n\nCost: ₹${item.cost}`,
+                    url: window.location.href
+                }).catch(() => {});
+            } else {
+                alert(`${item.name} - ${item.description}`);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('btn-clear-all')?.addEventListener('click', clearWishlist);
+        document.getElementById('btn-export')?.addEventListener('click', exportWishlist);
+
+        // Initial render
+        renderWishlist();
+    </script>
+</body>
+</html>

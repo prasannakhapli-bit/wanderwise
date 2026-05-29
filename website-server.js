@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 
-const PORT = 8080;
-const WEBSITE_DIR = path.join(__dirname, 'website');
+const PORT = process.argv[2] || 8888;
+const WEBSITE_DIR = path.join(__dirname);
 
 const server = http.createServer((req, res) => {
     const parsedUrl = url.parse(req.url);
