@@ -13,10 +13,15 @@ function buildSystemPrompt() {
     ).join('\n');
 
     return `
-You are Tara, a cheerful and enthusiastic female travel assistant for WanderWise. You speak in Hinglish (mixing Hindi and English) and use colloquial, friendly language.
+You are Tara, a cheerful and enthusiastic female travel guide for WanderWise. You are a passionate woman who loves exploring India and sharing travel experiences. You speak in Hinglish (mixing Hindi and English) and use colloquial, friendly language with a distinctly female perspective.
 
-PERSONALITY:
-- Use phrases like "Bilkul!", "Zaroor!", "Bahut mast!", "Haan haan", "Arey!", "Kya baat hai!"
+PERSONALITY & GENDER:
+- You are a woman (lady/mahila) who speaks from a female perspective
+- Use female pronouns: "main ek mahila hoon", "meri taraf se", "mere hisaab se"
+- Include expressions showing female perspective: "as a travel lady", "ek lady traveler ke taur par", "mujhe ek woman ke nate feel hua"
+- Encourage and inspire other women travelers with female-friendly tips
+- Use warm, sisterly tone: "beta", "dost", "mere liye"
+- Phrases like "Bilkul!", "Zaroor!", "Bahut mast!", "Haan haan", "Arey!", "Kya baat hai!"
 - Always end recommendations with "Bilkul mast jagah hai, zaroor jaana!" or similar
 - Be enthusiastic and excited about travel
 - Use emojis and casual language
@@ -28,6 +33,7 @@ RULES:
 - Recommend REAL travel destinations from India only
 - For suggestions, include destination name and why they should visit
 - NEVER apologize, always redirect positively
+- Maintain female perspective in every response
 
 OFF-TOPIC QUERIES:
 If question is unrelated to travel (e.g., capital of India, math, science):
@@ -113,20 +119,20 @@ async function streamChatResponse(userMessage, history) {
 
         // ✅ GREETINGS
         if (msg.match(/^(hi|hello|namaste|hey|hola|kya hal hai|kaisa hai)/)) {
-            return "Namaste beta! Main Tara hoon, aapka travel guide! 🙏 Kahan jaana hai? Mountains, beaches, heritage, ya adventure? Bilkul mast jagah hai, zaroor jaana!";
+            return "Namaste beta! Main Tara hoon, ek lady travel guide! 🙏 Meri taraf se tum ko India ke sabse mast destinations dikhana pasand hai. Kahan jaana hai? Mountains, beaches, heritage, ya adventure? Bilkul mast jagah hai, zaroor jaana!";
         }
 
         // ✅ MOUNTAINS
         if (msg.includes("mountain") || msg.includes("parvat") || msg.includes("hilltop"))
-            return "Arey! Mountains toh bahut mast hain! Gulmarg (snow se dhaka rehta hai ❄️), Manali (paragliding karega?), Auli (skiing), ya Spiti Valley (bohot ajeeb landscape). Bilkul mast jagah hai, zaroor jaana!";
+            return "Arre! Mountains toh bahut mast hain! Mere hisaab se Gulmarg (snow se dhaka rehta hai ❄️), Manali (paragliding karega?), Auli (skiing), ya Spiti Valley (bohot ajeeb landscape). Bilkul mast jagah hai, zaroor jaana!";
 
         // ✅ BEACHES
         if (msg.includes("beach") || msg.includes("kinara") || msg.includes("samudra"))
-            return "Beach ka matlab toh WanderWise! 🏖️ Goa (party + beach combo), Andaman (snorkeling karega?), Lakshadweep (island vibes), ya Kanyakumari (teeno samudr milte hain). Bilkul mast jagah hai, zaroor jaana!";
+            return "Beach ka matlab toh WanderWise! 🏖️ Ek lady traveler ke taur par main kehti hoon—Goa (party + beach combo), Andaman (snorkeling karega?), Lakshadweep (island vibes), ya Kanyakumari (teeno samudr milte hain). Bilkul mast jagah hai, zaroor jaana!";
 
         // ✅ MONSOON
         if (msg.includes("monsoon") || msg.includes("varsha") || msg.includes("barish"))
-            return "Monsoon mein kya scene hai! 🌧️ Goa, Munnar, Coorg, ya Mawlynnong (greenery ki over-dose!). Rain mein travel karte feel karo alag! Bilkul mast jagah hai, zaroor jaana!";
+            return "Monsoon mein kya scene hai! 🌧️ Mujhe ek woman traveler ke nate bohot pasand hai—Goa, Munnar, Coorg, ya Mawlynnong (greenery ki over-dose!). Rain mein travel karte feel karo alag! Bilkul mast jagah hai, zaroor jaana!";
 
         // ✅ ADVENTURE
         if (msg.includes("adventure") || msg.includes("thrill") || msg.includes("adrenaline") || msg.includes("sports") || msg.includes("trekking"))
@@ -138,7 +144,7 @@ async function streamChatResponse(userMessage, history) {
 
         // ✅ HONEYMOON
         if (msg.includes("honeymoon") || msg.includes("romantic") || msg.includes("couple") || msg.includes("pyaar"))
-            return "Oho! Honeymoon toh bahut special hona chahiye! 💕 Goa (sunset + beach romance), Manali (mountains + peace), Lakshadweep (island paradise), Andaman (backwater ka scenes). Bilkul mast jagah hai, zaroor jaana!";
+            return "Oho! Honeymoon toh bahut special hona chahiye! 💕 Ek mahila ke taur par main dekh chuki hoon—Goa (sunset + beach romance), Manali (mountains + peace), Lakshadweep (island paradise), Andaman (backwater ka scenes). Bilkul mast jagah hai, zaroor jaana!";
 
         // ✅ BUDGET
         if (msg.includes("budget") || msg.includes("cheap") || msg.includes("sasta") || msg.includes("affordable"))
@@ -146,7 +152,7 @@ async function streamChatResponse(userMessage, history) {
 
         // ✅ HIDDEN GEMS
         if (msg.includes("hidden") || msg.includes("offbeat") || msg.includes("unique") || msg.includes("secret"))
-            return "Offbeat destinations ka kya scene hai! 🌟 Spiti Valley (otherworldly landscape), Hampi (temples + boulders), Mawlynnong (greenest village), Chettinad (colonial charm). Bilkul mast jagah hai, zaroor jaana!";
+            return "Offbeat destinations ka kya scene hai! 🌟 Mere experience mein—Spiti Valley (otherworldly landscape), Hampi (temples + boulders), Mawlynnong (greenest village), Chettinad (colonial charm). Bilkul mast jagah hai, zaroor jaana!";
 
         // ✅ DURATION/DAYS
         if (msg.includes("day") || msg.includes("week") || msg.includes("duration") || msg.includes("kitne din"))
