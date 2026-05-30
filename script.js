@@ -132,6 +132,7 @@ function renderDestinations() {
                     ${dest.topThings.map(thing => `<li>${thing}</li>`).join('')}
                 </ul>
             </div>
+            <button class="card-action-btn" onclick="planTravel('${dest.name}')">📋 Plan Travel</button>
         </div>
     `).join('');
 }
@@ -213,23 +214,148 @@ function planTravel(destName) {
     const dest = state.destinations.find(d => d.name === destName);
     if (!dest) return;
     
-    // ✅ Scroll to destinations section
-    document.getElementById('destinations')?.scrollIntoView({ behavior: 'smooth' });
+    // ✅ Show modal with destination details
+    showDestinationModal(dest.id);
+}
+
+// ✅ HELPER: Show destination details modal
+function showDestinationModal(destId) {
+    const dest = state.destinations.find(d => d.id === destId);
+    if (!dest) return;
+
+    const modal = document.getElementById('tripCardModal');
+    const content = document.getElementById('tripCardContent');
+
+    if (!modal || !content) return;
+
+    // Generate modal HTML with interactive actions
+    const modalHTML = `
+        <div class="modal-details">
+            <img src="${dest.imageUrl}" alt="${dest.name}" class="modal-image">
+            
+            <div class="modal-info">
+                <div class="modal-header-content">
+                    <h2 class="modal-title">${dest.name}</h2>
+                    ${dest.isTopPick ? '<span class="modal-badge">✨ Top Pick</span>' : ''}
+                </div>
+                
+                <p class="modal-location">📍 ${dest.state}</p>
+                
+                <div class="modal-description">
+                    <p>${dest.description}</p>
+                </div>
+
+                <div class="modal-stats">
+                    <div class="stat">
+                        <span class="stat-label">Budget</span>
+                        <span class="stat-value">₹${dest.cost.toLocaleString()}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Best Season</span>
+                        <span class="stat-value">${dest.bestSeason}</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Ideal Duration</span>
+                        <span class="stat-value">${dest.idealDays} days</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Adventure Level</span>
+                        <span class="stat-value">${dest.adventureLevel}/5</span>
+                    </div>
+                </div>
+
+                <div class="modal-attractions">
+                    <h3>✨ Top Attractions</h3>
+                    <ul class="attractions-list">
+                        ${dest.topThings.map(thing => `<li>${thing}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="modal-actions-primary">
+                    <button class="btn-book-trip" onclick="bookTrip('${dest.name}', ${dest.id})">🎫 Book Trip</button>
+                    <button class="btn-view-hotels" onclick="viewHotels(${dest.id})">🏨 View Hotels</button>
+                    <button class="btn-view-itinerary" onclick="viewItinerary(${dest.id})">📅 View Itinerary</button>
+                </div>
+
+                <div class="modal-actions-secondary">
+                    <button class="btn-chat-tara">💬 Chat with Tara</button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    content.innerHTML = modalHTML;
+    modal.classList.remove('hidden');
     
-    // ✅ Filter to show this destination
-    state.currentFilter = dest.category.toLowerCase();
-    renderDestinations();
-    
-    // ✅ Highlight the destination card
-    setTimeout(() => {
-        const cards = document.querySelectorAll('.destination-card');
-        cards.forEach(card => {
-            if (card.textContent.includes(destName)) {
-                card.style.boxShadow = '0 0 20px rgba(255, 165, 0, 0.8)';
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        });
-    }, 300);
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+
+    // Attach close button handler
+    const closeBtn = modal.querySelector('.modal-close');
+    if (closeBtn) {
+        closeBtn.onclick = closeDestinationModal;
+    }
+
+    // Close on background/overlay click
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            closeDestinationModal();
+        }
+    };
+
+    // Close on Escape key
+    const handleEscapeKey = (e) => {
+        if (e.key === 'Escape') {
+            closeDestinationModal();
+        }
+    };
+    modal._escapeHandler = handleEscapeKey;
+    document.addEventListener('keydown', handleEscapeKey);
+
+    // Chat button handler
+    const chatBtn = modal.querySelector('.btn-chat-tara');
+    if (chatBtn) {
+        chatBtn.onclick = () => {
+            closeDestinationModal();
+            document.getElementById('chatInput').value = `Tell me about ${dest.name}`;
+            document.getElementById('chatToggle').click();
+        };
+    }
+}
+
+// ✅ HELPER: Close destination modal
+function closeDestinationModal() {
+    const modal = document.getElementById('tripCardModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        // Restore background scrolling
+        document.body.style.overflow = 'auto';
+
+        if (modal._escapeHandler) {
+            document.removeEventListener('keydown', modal._escapeHandler);
+            modal._escapeHandler = null;
+        }
+    }
+}
+
+// ✅ HELPER: Book trip action
+function bookTrip(destName, destId) {
+    console.log(`🎫 Booking trip to ${destName}`);
+    alert(`🎫 Booking feature coming soon!\n\nDestination: ${destName}\n\nYou'll be redirected to the booking page.`);
+}
+
+// ✅ HELPER: View hotels action
+function viewHotels(destId) {
+    const dest = state.destinations.find(d => d.id === destId);
+    console.log(`🏨 Viewing hotels for ${dest.name}`);
+    alert(`🏨 Hotel listings for ${dest.name}\n\nThis feature will show available hotels with pricing and ratings.`);
+}
+
+// ✅ HELPER: View itinerary action
+function viewItinerary(destId) {
+    const dest = state.destinations.find(d => d.id === destId);
+    console.log(`📅 Viewing itinerary for ${dest.name}`);
+    alert(`📅 Suggested itinerary for ${dest.name}\n\nDay-by-day travel plans with activities and recommendations.`);
 }
 
 // ================= CHAT CORE =================
