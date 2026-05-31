@@ -309,10 +309,16 @@ function showDestinationModal(destId) {
     if (chatBtn) {
         chatBtn.onclick = () => {
             closeDestinationModal();
-            document.getElementById('chatInput').value = `Tell me about ${dest.name}`;
+
             document.getElementById('chatToggle').click();
-        };
-    }
+
+    setTimeout(() => {
+        document.getElementById('chatInput').value =
+            `Tell me about ${dest.name}`;
+
+        sendMessage();
+    }, 300);
+};
 }
 
 // ✅ HELPER: Close destination modal
