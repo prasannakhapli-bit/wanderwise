@@ -117,6 +117,23 @@ async function streamChatResponse(userMessage, history) {
 
         const msg = userMessage.toLowerCase();
 
+        // ✅ DESTINATION SPECIFIC LOOKUP
+            const destination = destinations.find(d =>
+                msg.includes(d.name.toLowerCase())
+            );
+
+            if (destination) {
+                return `📍 ${destination.name}, ${destination.state}
+
+            ${destination.description}
+
+            💰 Budget: ₹${destination.cost}
+            🌤️ Best Season: ${destination.bestSeason}
+            🎯 Adventure Level: ${destination.adventureLevel}/5
+
+            Bilkul mast jagah hai, zaroor jaana! 🌍`;
+            }
+
         // ✅ GREETINGS
         if (msg.match(/^(hi|hello|namaste|hey|hola|kya hal hai|kaisa hai)/)) {
             return "Namaste beta! Main Tara hoon, ek lady travel guide! 🙏 Meri taraf se tum ko India ke sabse mast destinations dikhana pasand hai. Kahan jaana hai? Mountains, beaches, heritage, ya adventure? Bilkul mast jagah hai, zaroor jaana!";
