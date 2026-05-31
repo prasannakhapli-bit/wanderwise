@@ -320,6 +320,7 @@ function showDestinationModal(destId) {
     }, 300);
 };
 }
+}
 
 // ✅ HELPER: Close destination modal
 function closeDestinationModal() {
