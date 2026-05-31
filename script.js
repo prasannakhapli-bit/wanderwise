@@ -198,14 +198,6 @@ function extractDestinations(text) {
     return mentioned;
 }
 
-// ✅ HELPER: Create travel planning action
-function createTravelAction(destination) {
-    return `
-        <button class="travel-action-btn" onclick="planTravel('${destination.name}')">
-            ✈️ Plan Travel to ${destination.name}
-        </button>
-    `;
-}
 
 // ✅ HELPER: Handle travel planning click
 function planTravel(destName) {
