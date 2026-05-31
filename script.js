@@ -188,13 +188,15 @@ function setupQuickReplies() {
 function extractDestinations(text) {
     const mentioned = [];
     if (!state.destinations.length) return mentioned;
-    
+
     const lowerText = text.toLowerCase();
+
     state.destinations.forEach(dest => {
         if (lowerText.includes(dest.name.toLowerCase())) {
             mentioned.push(dest);
-        }f
+        }
     });
+
     return mentioned;
 }
 
