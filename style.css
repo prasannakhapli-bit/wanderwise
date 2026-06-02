@@ -813,3 +813,160 @@ h2 {
         font-size: 0.9rem;
     }
 }
+
+/* ================= ITINERARY MODAL STYLES ================= */
+.itinerary-modal-details {
+    display: flex;
+    flex-direction: column;
+    padding: 2rem;
+}
+
+.itinerary-header {
+    margin-bottom: 2rem;
+}
+
+.itinerary-title {
+    font-size: 2rem;
+    color: var(--sky-blue);
+    margin: 0 0 0.5rem 0;
+    font-weight: 700;
+}
+
+.itinerary-duration {
+    color: var(--text-light);
+    font-size: 1rem;
+    margin: 0;
+}
+
+.itinerary-days-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.itinerary-day-card {
+    background: linear-gradient(135deg, var(--sky-light), #fef3c7);
+    border-left: 5px solid var(--sunset-orange);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: 0.3s;
+}
+
+.itinerary-day-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+}
+
+.day-number-badge {
+    display: inline-block;
+    background: var(--sunset-orange);
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+}
+
+.day-title {
+    font-size: 1.3rem;
+    color: var(--sky-blue);
+    margin: 0.8rem 0 1rem 0;
+    font-weight: 700;
+}
+
+.day-activities {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.day-activities li {
+    padding: 0.6rem 0;
+    padding-left: 1.8rem;
+    position: relative;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.day-activities li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--sunset-orange);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.itinerary-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid rgba(30, 58, 138, 0.1);
+}
+
+.meta-item {
+    text-align: center;
+}
+
+.meta-label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 0.5rem;
+}
+
+.meta-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--sky-blue);
+}
+
+/* ================= RESPONSIVE ITINERARY MODAL ================= */
+@media (max-width: 768px) {
+    .itinerary-modal-details {
+        padding: 1.2rem;
+    }
+
+    .itinerary-title {
+        font-size: 1.5rem;
+    }
+
+    .itinerary-days-container {
+        gap: 1rem;
+    }
+
+    .itinerary-day-card {
+        padding: 1.2rem;
+    }
+
+    .day-title {
+        font-size: 1.1rem;
+    }
+
+    .day-activities li {
+        padding: 0.5rem 0;
+        padding-left: 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    .itinerary-meta {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+    }
+
+    .meta-value {
+        font-size: 1.2rem;
+    }
+}

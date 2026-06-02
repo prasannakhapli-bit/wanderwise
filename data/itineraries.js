@@ -188,7 +188,327 @@ const itineraries = [
             }
         ]
     }
-];
+,
+
+    // KERALA 5-DAY ITINERARY
+    {
+        id: 205,
+        destinationId: 4,
+        name: 'Kerala Backwater Paradise',
+        destination: 'Kerala',
+        duration: 5,
+        budget: 30000,
+        difficulty: 'Easy',
+        description: 'Explore backwaters, beaches, and tea plantations',
+        days: [
+            {
+                dayNumber: 1,
+                title: 'Arrival in Kochi',
+                activities: [
+                    'Arrive in Kochi',
+                    'Explore Fort Kochi heritage zone',
+                    'Witness Chinese fishing nets at sunset',
+                    'Dinner at beachside restaurant'
+                ]
+            },
+            {
+                dayNumber: 2,
+                title: 'Backwater Cruise',
+                activities: [
+                    'Houseboat cruise on backwaters',
+                    'Visit spice markets',
+                    'Lunch on the boat',
+                    'Experience village life',
+                    'Traditional dinner'
+                ]
+            },
+            {
+                dayNumber: 3,
+                title: 'Munnar Tea Gardens',
+                activities: [
+                    'Journey to Munnar hill station',
+                    'Tea plantation trek',
+                    'Visit tea factory',
+                    'Sunset view point',
+                    'Adventure activities'
+                ]
+            },
+            {
+                dayNumber: 4,
+                title: 'Beach Exploration',
+                activities: [
+                    'Head to Alleppey beaches',
+                    'Beach volleyball and swimming',
+                    'Ayurvedic spa treatment',
+                    'Fresh seafood dinner',
+                    'Bonfire on beach'
+                ]
+            },
+            {
+                dayNumber: 5,
+                title: 'Relaxation & Departure',
+                activities: [
+                    'Morning yoga session',
+                    'Last-minute shopping',
+                    'Beach time',
+                    'Departure'
+                ]
+            }
+        ]
+    },
+
+    // RAJASTHAN 4-DAY ITINERARY
+    {
+        id: 206,
+        destinationId: 8,
+        name: 'Rajasthan Royal Heritage',
+        destination: 'Rajasthan',
+        duration: 4,
+        budget: 28000,
+        difficulty: 'Medium',
+        description: 'Explore palaces, forts, and desert landscapes',
+        days: [
+            {
+                dayNumber: 1,
+                title: 'Jaipur Pink City',
+                activities: [
+                    'Explore City Palace',
+                    'Visit Jantar Mantar',
+                    'Walk through bazaars',
+                    'Hawa Mahal photography',
+                    'Evening light and sound show'
+                ]
+            },
+            {
+                dayNumber: 2,
+                title: 'Amber Fort & Elephant Ride',
+                activities: [
+                    'Elephant ride to Amber Fort',
+                    'Fort exploration with guide',
+                    'Mirror Palace visit',
+                    'Lunch in heritage hotel',
+                    'Traditional puppet show'
+                ]
+            },
+            {
+                dayNumber: 3,
+                title: 'Jodhpur Blue City',
+                activities: [
+                    'Travel to Jodhpur',
+                    'Mehrangarh Fort exploration',
+                    'Climb fort stairs for city views',
+                    'Explore blue-painted old town',
+                    'Visit local markets'
+                ]
+            },
+            {
+                dayNumber: 4,
+                title: 'Desert Safari & Departure',
+                activities: [
+                    'Desert camel safari',
+                    'Lunch in desert village',
+                    'Traditional folk performance',
+                    'Sunset photography',
+                    'Departure'
+                ]
+            }
+        ]
+    },
+
+    // DARJEELING 3-DAY ITINERARY
+    {
+        id: 207,
+        destinationId: 3,
+        name: 'Darjeeling Tea Trail',
+        destination: 'Darjeeling',
+        duration: 3,
+        budget: 18000,
+        difficulty: 'Medium',
+        description: 'Tea gardens, toy train, and Himalayan views',
+        days: [
+            {
+                dayNumber: 1,
+                title: 'Arrival & Sightseeing',
+                activities: [
+                    'Arrive in Darjeeling',
+                    'Tiger Hill sunrise visit',
+                    'Kanyakumari viewpoint',
+                    'Explore local markets',
+                    'Evening stroll on Mall Road'
+                ]
+            },
+            {
+                dayNumber: 2,
+                title: 'Toy Train & Tea Gardens',
+                activities: [
+                    'Ride the famous toy train',
+                    'Visit Batasia Loop',
+                    'Tea garden trek',
+                    'Tour tea processing factory',
+                    'Tea tasting experience'
+                ]
+            },
+            {
+                dayNumber: 3,
+                title: 'Adventure & Departure',
+                activities: [
+                    'Rock climbing or paragliding',
+                    'Visit monasteries',
+                    'Last shopping session',
+                    'Departure'
+                ]
+            }
+        ]
+    },
+
+    // PUSHKAR 3-DAY ITINERARY
+    {
+        id: 208,
+        destinationId: 9,
+        name: 'Pushkar Spiritual Journey',
+        destination: 'Pushkar',
+        duration: 3,
+        budget: 12000,
+        difficulty: 'Easy',
+        description: 'Explore the sacred Pushkar Lake and experience spiritual India',
+        days: [
+            {
+                dayNumber: 1,
+                title: 'Arrival & Pushkar Ghats',
+                activities: [
+                    'Arrive in Pushkar',
+                    'Visit Pushkar Lake Ghats',
+                    'Pushkar Temple exploration',
+                    'Evening Aarti ceremony at the lake',
+                    'Dinner at rooftop restaurant'
+                ]
+            },
+            {
+                dayNumber: 2,
+                title: 'Spiritual Exploration',
+                activities: [
+                    'Early morning Brahma Temple visit',
+                    'Camel ride in the Thar Desert',
+                    'Village market exploration',
+                    'Sunset at Pushkar Hills',
+                    'Traditional Indian meal'
+                ]
+            },
+            {
+                dayNumber: 3,
+                title: 'Local Culture & Departure',
+                activities: [
+                    'Shopping at local bazaars',
+                    'Craft workshop visit',
+                    'Final lake walk',
+                    'Departure'
+                ]
+            }
+        ]
+    },
+
+    // VARANASI 3-DAY ITINERARY
+    {
+        id: 209,
+        destinationId: 10,
+        name: 'Varanasi - The Sacred City',
+        destination: 'Varanasi',
+        duration: 3,
+        budget: 10000,
+        difficulty: 'Easy',
+        description: 'Experience the spiritual heart of India at Varanasi',
+        days: [
+            {
+                dayNumber: 1,
+                title: 'Ghat Experience',
+                activities: [
+                    'Arrive in Varanasi',
+                    'Early morning Ganga Aarti',
+                    'Boat ride on Ganga River',
+                    'Dashashwamedh Ghat exploration',
+                    'Evening prayer ceremony'
+                ]
+            },
+            {
+                dayNumber: 2,
+                title: 'Temples & Culture',
+                activities: [
+                    'Kashi Vishwanath Temple visit',
+                    'Local street food tour',
+                    'Annapurna Temple visit',
+                    'Silk weaving workshop',
+                    'Night Ganga show'
+                ]
+            },
+            {
+                dayNumber: 3,
+                title: 'Spiritual Reflection & Departure',
+                activities: [
+                    'Sunrise meditation at Ghat',
+                    'Shopping for silks and handicrafts',
+                    'Sarnath day trip (optional)',
+                    'Departure'
+                ]
+            }
+        ]
+    },
+
+    // LAKSHADWEEP 4-DAY ITINERARY
+    {
+        id: 210,
+        destinationId: 15,
+        name: 'Lakshadweep Island Paradise',
+        destination: 'Lakshadweep',
+        duration: 4,
+        budget: 40000,
+        difficulty: 'Easy',
+        description: 'Pristine islands with turquoise waters and coral reefs',
+        days: [
+            {
+                dayNumber: 1,
+                title: 'Island Arrival',
+                activities: [
+                    'Arrive at Lakshadweep',
+                    'Island tour orientation',
+                    'Beach relaxation',
+                    'Sunset at the beach',
+                    'Welcome dinner with seafood'
+                ]
+            },
+            {
+                dayNumber: 2,
+                title: 'Water Sports & Snorkeling',
+                activities: [
+                    'Scuba diving or snorkeling',
+                    'Coral reef exploration',
+                    'Water sports activities',
+                    'Beach volleyball',
+                    'Bonfire and beach dinner'
+                ]
+            },
+            {
+                dayNumber: 3,
+                title: 'Island Hopping',
+                activities: [
+                    'Island hopping adventure',
+                    'Visit local villages',
+                    'Traditional fishing experience',
+                    'Island culture workshop',
+                    'Night sea walk'
+                ]
+            },
+            {
+                dayNumber: 4,
+                title: 'Relaxation & Departure',
+                activities: [
+                    'Last beach time',
+                    'Spa treatment',
+                    'Souvenir shopping',
+                    'Departure'
+                ]
+            }
+        ]
+    }];
 
 // Export for Node.js (server-side)
 if (typeof module !== 'undefined' && module.exports) {

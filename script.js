@@ -363,10 +363,177 @@ function viewHotels(destId) {
 }
 
 // ✅ HELPER: View itinerary action
+// Shows itinerary modal or "coming soon" message if not available
 function viewItinerary(destId) {
     const dest = state.destinations.find(d => d.id === destId);
+    if (!dest) return;
+    
+    // Check if itineraries data is loaded
+    if (typeof itineraries === 'undefined') {
+        console.error("❌ Itineraries data not loaded");
+        return;
+    }
+
+    // Find itinerary for this destination
+    const itinerary = itineraries.find(it => it.destinationId === destId);
+    
+    if (!itinerary) {
+        // Show "coming soon" message in modal
+        console.log(`📅 Itinerary not yet available for ${dest.name}`);
+        showComingSoonModal(dest.name);
+        return;
+    }
+
     console.log(`📅 Viewing itinerary for ${dest.name}`);
-    alert(`📅 Suggested itinerary for ${dest.name}\n\nDay-by-day travel plans with activities and recommendations.`);
+    showItineraryModal(itinerary);
+}
+
+// ✅ HELPER: Show "Coming Soon" modal for destinations without itinerary
+// Provides better UX than alert box
+function showComingSoonModal(destinationName) {
+    const modal = document.getElementById('itineraryModal');
+    const content = document.getElementById('itineraryModalContent');
+
+    if (!modal || !content) return;
+
+    const modalHTML = `
+        <div class="itinerary-modal-details">
+            <div class="itinerary-header">
+                <h2 class="itinerary-title">${destinationName}</h2>
+                <p class="itinerary-duration">📅 Itinerary Coming Soon</p>
+            </div>
+
+            <div style="text-align: center; padding: 3rem 2rem; color: #6B7280;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🗺️</div>
+                <h3 style="font-size: 1.5rem; color: #1F2937; margin-bottom: 1rem;">
+                    Itinerary Coming Soon
+                </h3>
+                <p style="font-size: 1rem; line-height: 1.6;">
+                    We're curating a detailed day-by-day itinerary for <strong>${destinationName}</strong>. 
+                    Stay tuned! In the meantime, chat with Tara to learn more about this destination.
+                </p>
+            </div>
+        </div>
+    `;
+
+    content.innerHTML = modalHTML;
+    modal.classList.remove('hidden');
+    
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+
+    // Attach close button handler
+    const closeBtn = modal.querySelector('.modal-close');
+    if (closeBtn) {
+        closeBtn.onclick = closeItineraryModal;
+    }
+
+    // Close on background/overlay click
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            closeItineraryModal();
+        }
+    };
+
+    // Close on Escape key
+    const handleEscapeKey = (e) => {
+        if (e.key === 'Escape') {
+            closeItineraryModal();
+        }
+    };
+    modal._escapeHandler = handleEscapeKey;
+    document.addEventListener('keydown', handleEscapeKey);
+}
+
+
+// ✅ HELPER: Show itinerary modal
+function showItineraryModal(itinerary) {
+    const modal = document.getElementById('itineraryModal');
+    const content = document.getElementById('itineraryModalContent');
+
+    if (!modal || !content) return;
+
+    // Generate itinerary HTML
+    const daysHTML = itinerary.days.map(day => `
+        <div class="itinerary-day-card">
+            <div class="day-number-badge">Day ${day.dayNumber}</div>
+            <h3 class="day-title">${day.title}</h3>
+            <ul class="day-activities">
+                ${day.activities.map(activity => `<li>${activity}</li>`).join('')}
+            </ul>
+        </div>
+    `).join('');
+
+    const modalHTML = `
+        <div class="itinerary-modal-details">
+            <div class="itinerary-header">
+                <h2 class="itinerary-title">${itinerary.name}</h2>
+                <p class="itinerary-duration">📍 ${itinerary.destination} • ${itinerary.duration} Days</p>
+            </div>
+
+            <div class="itinerary-days-container">
+                ${daysHTML}
+            </div>
+
+            <div class="itinerary-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Budget</div>
+                    <div class="meta-value">₹${itinerary.budget.toLocaleString()}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Difficulty</div>
+                    <div class="meta-value">${itinerary.difficulty}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Days</div>
+                    <div class="meta-value">${itinerary.duration}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    content.innerHTML = modalHTML;
+    modal.classList.remove('hidden');
+    
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+
+    // Attach close button handler
+    const closeBtn = modal.querySelector('.modal-close');
+    if (closeBtn) {
+        closeBtn.onclick = closeItineraryModal;
+    }
+
+    // Close on background/overlay click
+    modal.onclick = (e) => {
+        if (e.target === modal) {
+            closeItineraryModal();
+        }
+    };
+
+    // Close on Escape key
+    const handleEscapeKey = (e) => {
+        if (e.key === 'Escape') {
+            closeItineraryModal();
+        }
+    };
+    modal._escapeHandler = handleEscapeKey;
+    document.addEventListener('keydown', handleEscapeKey);
+}
+
+// ✅ HELPER: Close itinerary modal
+function closeItineraryModal() {
+    const modal = document.getElementById('itineraryModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        // Restore background scrolling
+        document.body.style.overflow = 'auto';
+
+        if (modal._escapeHandler) {
+            document.removeEventListener('keydown', modal._escapeHandler);
+            modal._escapeHandler = null;
+        }
+    }
 }
 
 // ================= CHAT CORE =================
