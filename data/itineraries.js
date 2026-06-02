@@ -456,7 +456,7 @@ const itineraries = [
     // LAKSHADWEEP 4-DAY ITINERARY
     {
         id: 210,
-        destinationId: 15,
+        destinationId: 6,
         name: 'Lakshadweep Island Paradise',
         destination: 'Lakshadweep',
         duration: 4,
