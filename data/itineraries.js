@@ -364,7 +364,7 @@ const itineraries = [
     // PUSHKAR 3-DAY ITINERARY
     {
         id: 208,
-        destinationId: 9,
+        destinationId: 14,
         name: 'Pushkar Spiritual Journey',
         destination: 'Pushkar',
         duration: 3,
