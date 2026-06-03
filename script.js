@@ -351,8 +351,20 @@ function closeDestinationModal() {
 
 // ✅ HELPER: Book trip action
 function bookTrip(destName, destId) {
-    console.log(`🎫 Booking trip to ${destName}`);
-    alert(`🎫 Booking feature coming soon!\n\nDestination: ${destName}\n\nYou'll be redirected to the booking page.`);
+    console.log(`🎫 Adding ${destName} to wishlist`);
+
+    const destination = state.destinations.find(
+        d => d.id === destId || d.name === destName
+    );
+
+    if (!destination) return;
+
+    alert(
+        `✅ Added to your wishlist!\n\n` +
+        `${destination.name}\n` +
+        `Approx Cost: ₹${destination.cost.toLocaleString()}\n\n` +
+        `Mast choice!`
+    );
 }
 
 // ✅ HELPER: View hotels action
