@@ -184,7 +184,9 @@ async function streamChatResponse(userMessage, history) {
     }
 }
 
+console.log("🚀 CHATBOT BUILD MARKER v2.5 FLASH LITE");
+
 module.exports = {
     streamChatResponse
 };
-``
+
