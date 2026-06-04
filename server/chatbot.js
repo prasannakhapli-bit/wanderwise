@@ -4,6 +4,9 @@ const destinations = require('./destinations');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
+
+console.log("STARTUP MODEL =", GEMINI_MODEL);
+
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 // ================= PROMPT =================
@@ -184,7 +187,9 @@ async function streamChatResponse(userMessage, history) {
     }
 }
 
+console.log("🚀 CHATBOT BUILD MARKER v2.5 FLASH LITE");
+
 module.exports = {
     streamChatResponse
 };
-``// render-redeploy-test
+
