@@ -620,15 +620,16 @@ async function sendMessage() {
     const input = document.getElementById('chatInput');
     const sendBtn = document.getElementById('chatSend');
     const message = input.value.trim();
+	
     if (!message) return;
 
     // push user message to state and render
     state.chatHistory.push({
-    role: 'user',
-    content: message
+		role: 'user',
+		content: message
 });
 
-localStorage.setItem(
+localStorage.setItem(	
     'chatHistory',
     JSON.stringify(state.chatHistory)
 );
@@ -686,7 +687,8 @@ renderChatMessages();
 		renderChatMessages();
 
 	} finally {
-		input.disabled = false;
-		if (sendBtn) sendBtn.disabled = false;
-		input.focus();
-	}
+    input.disabled = false;
+    if (sendBtn) sendBtn.disabled = false;
+    input.focus();
+}
+}
