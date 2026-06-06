@@ -6,8 +6,10 @@ const API_URL =
 // === STATE ===
 let state = {
     destinations: [],
-    chatHistory: [],
-    currentFilter: 'all'    
+    chatHistory: JSON.parse(
+        localStorage.getItem('chatHistory') || '[]'
+    ),
+		
 };
 
 // INIT
@@ -31,8 +33,7 @@ function setupChatToggle() {
     if (toggleBtn) {
         toggleBtn.onclick = () => {
             console.log("✅ Chat opened");
-            panel.style.display = 'block';
-            // Always render current state when opening (fixes persistence after close)
+            panel.style.display = 'flex';   // <-- changed from block
             renderChatMessages();
         };
     }
@@ -41,9 +42,9 @@ function setupChatToggle() {
         closeBtn.onclick = () => {
             console.log("✅ Chat closed");
             panel.style.display = 'none';
-            // Clear chat history from UI when user closes the panel
+
             state.chatHistory = [];
-            renderChatMessages(); // Re-render empty state
+            renderChatMessages();
         };
     }
 }
@@ -584,20 +585,26 @@ function renderChatMessages() {
             `;
         } else {
             // assistant (Tara)
-            const mentioned = extractDestinations(item.content);
-            let assistantHTML = `
-                <div class="chat-message tara">
-                    <div class="chat-bubble">${item.content}</div>`;
+            // assistant (Tara)
+			const mentioned = extractDestinations(item.content);
 
-            if (mentioned.length > 0) {
-                assistantHTML += `
-                    <div class="travel-actions">
-                        ${mentioned.map(d => createTravelAction(d)).join('')}
-                    </div>`;
-            }
+			let assistantHTML = `
+				<div class="chat-message tara">
+					<div class="chat-bubble">
+						${item.content.replace(/\n/g, '<br>')}
+					</div>
+			`;
 
-            assistantHTML += `</div>`;
-            return assistantHTML;
+			if (mentioned.length > 0) {
+				assistantHTML += `
+					<div class="travel-actions">
+						${mentioned.map(d => createTravelAction(d)).join('')}
+					</div>`;
+			}
+
+			assistantHTML += `</div>`;
+
+			return assistantHTML;
         }
     }).join('');
 
@@ -616,35 +623,70 @@ async function sendMessage() {
     if (!message) return;
 
     // push user message to state and render
-    state.chatHistory.push({ role: 'user', content: message });
+    state.chatHistory.push({
+    role: 'user',
+    content: message
+});
+
+localStorage.setItem(
+    'chatHistory',
+    JSON.stringify(state.chatHistory)
+);
     renderChatMessages();
+	
+	
+	// clear input and disable while waiting
+	input.value = '';
+	input.disabled = true;
+	if (sendBtn) sendBtn.disabled = true;
 
-    // clear input and disable while waiting
-    input.value = '';
-    input.disabled = true;
-    if (sendBtn) sendBtn.disabled = true;
+	try {
+		const res = await fetch(`${API_URL}/chat`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				message,
+				history: state.chatHistory.slice(-10)
+			})
+		});
 
-    try {
-        const res = await fetch(`${API_URL}/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
-        });
+		const data = await res.json();
+		const reply = data.reply || "Sorry, I didn't understand that.";
 
-        const data = await res.json();
-        const reply = data.reply || "Sorry, I didn't understand that.";
+		// push assistant reply and render
+		state.chatHistory.push({
+		role: 'assistant',
+		content: reply
+	});
 
-        // push assistant reply and render
-        state.chatHistory.push({ role: 'assistant', content: reply });
-        renderChatMessages();
+	localStorage.setItem(
+		'chatHistory',
+		JSON.stringify(state.chatHistory)
+	);
 
-    } catch (err) {
-        console.error("Chat error:", err);
-        state.chatHistory.push({ role: 'assistant', content: '⚠️ Error connecting to server' });
-        renderChatMessages();
-    } finally {
-        input.disabled = false;
-        if (sendBtn) sendBtn.disabled = false;
-        input.focus();
-    }
-}
+renderChatMessages();
+
+		renderChatMessages();
+
+	} catch (err) {
+		console.error("Chat error:", err);
+
+		state.chatHistory.push({
+			role: 'assistant',
+			content: '⚠️ Error connecting to server'
+		});
+
+		localStorage.setItem(
+			'chatHistory',
+			JSON.stringify(state.chatHistory)
+		);
+
+		renderChatMessages();
+
+	} finally {
+		input.disabled = false;
+		if (sendBtn) sendBtn.disabled = false;
+		input.focus();
+	}
