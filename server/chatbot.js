@@ -536,7 +536,7 @@ Bilkul mast jagah hai, zaroor jaana! 🌍`;
             return "Budget kya ho raha hai? 💸 10k se 50k tak sab kuch available hai! Varanasi (₹10-15k), Manali (₹25-35k), Goa (₹20-30k), Lakshadweep (₹45k+). Kaunsa range pasand? Bilkul mast jagah hai, zaroor jaana!";
 
         // ✅ OFF-TOPIC (FALLBACK)
-        return "Arre, main toh sirf travel ki baatein karti hoon! 😅 Mujhe toh destinations, trips, adventure, beaches—sirf ye sab pata hai. Kahan jaana hai tumhe? Ask me about mountains, beaches, honeymoon, budget trips, ya adventure! 🌍";
+        return "⚠️ Travel AI temporarily busy hai. Thodi der baad try karo. Meanwhile main destination recommendations de sakti hoon.";
     }
 }
 
