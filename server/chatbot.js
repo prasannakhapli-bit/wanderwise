@@ -448,13 +448,16 @@ async function streamChatResponse(userMessage, history) {
 			msg.startsWith("is") ||
 			msg.startsWith("are") ||
 			msg.startsWith("should") ||
-			msg.startsWith("can")
+			msg.startsWith("can") ||
 			msg.includes("tell me") ||
 			msg.includes("recommend") ||
 			msg.includes("suggest") ||
 			msg.includes("about") ||
 			msg.includes("places to") ||
-			msg.includes("things to do");
+			msg.includes("things to do") ||
+			msg.includes("top") ||
+			msg.includes("best");
+				
 					
 		
         // ✅ DESTINATION SPECIFIC LOOKUP
