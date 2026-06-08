@@ -434,23 +434,58 @@ async function streamChatResponse(userMessage, history) {
         console.error("⚠️ Chatbot fallback triggered:", error);
 
         const msg = userMessage.toLowerCase();
+			// ✅ QUESTION DETECTION
 
+		const isQuestion =
+			msg.includes("?") ||
+			msg.startsWith("what") ||
+			msg.startsWith("which") ||
+			msg.startsWith("how") ||
+			msg.startsWith("why") ||
+			msg.startsWith("when") ||
+			msg.startsWith("where") ||
+			msg.startsWith("best") ||
+			msg.startsWith("is") ||
+			msg.startsWith("are") ||
+			msg.startsWith("should") ||
+			msg.startsWith("can")
+			msg.includes("tell me") ||
+			msg.includes("recommend") ||
+			msg.includes("suggest") ||
+			msg.includes("about") ||
+			msg.includes("places to") ||
+			msg.includes("things to do");
+					
+		
         // ✅ DESTINATION SPECIFIC LOOKUP
-            const destination = destinations.find(d =>
-                msg.includes(d.name.toLowerCase())
-            );
+	 const destination = destinations.find(d =>
+		msg.includes(d.name.toLowerCase())
+		
+	);
 
-            if (destination) {
-                return `📍 ${destination.name}, ${destination.state}
+	if (
+		destination &&
+		!isQuestion &&
+		//!msg.includes("?")&& //
+		!msg.includes("cafe") &&
+		!msg.includes("food") &&
+		!msg.includes("restaurant") &&
+		!msg.includes("beach") &&
+		!msg.includes("worth") &&
+		!msg.includes("visit") &&
+		!msg.includes("itinerary") &&
+		!msg.includes("honeymoon")
+	) {
+		return `📍 ${destination.name}, ${destination.state}
 
-            ${destination.description}
+	${destination.description}
 
-            💰 Budget: ₹${destination.cost}
-            🌤️ Best Season: ${destination.bestSeason}
-            🎯 Adventure Level: ${destination.adventureLevel}/5
+💰 Budget: ₹${destination.cost}
+🌤️ Best Season: ${destination.bestSeason}
+🎯 Adventure Level: ${destination.adventureLevel}/5
 
-            Bilkul mast jagah hai, zaroor jaana! 🌍`;
-            }
+Bilkul mast jagah hai, zaroor jaana! 🌍`;
+}
 
         // ✅ GREETINGS
         if (msg.match(/^(hi|hello|namaste|hey|hola|kya hal hai|kaisa hai)/)) {
@@ -463,11 +498,11 @@ async function streamChatResponse(userMessage, history) {
 
         // ✅ BEACHES
         if (msg.includes("beach") || msg.includes("kinara") || msg.includes("samudra"))
-            return "Beach ka matlab toh WanderWise! 🏖️ Ek lady traveler ke taur par main kehti hoon—Goa (party + beach combo), Andaman (snorkeling karega?), Lakshadweep (island vibes), ya Kanyakumari (teeno samudr milte hain). Bilkul mast jagah hai, zaroor jaana!";
+            return "Beach ka matlab toh WanderWise! 🏖️ Mere experience mein  — Goa (party + beach combo), Andaman (snorkeling karega?), Lakshadweep (island vibes), ya Kanyakumari (teeno samudr milte hain). Bilkul mast jagah hai, zaroor jaana!";
 
         // ✅ MONSOON
         if (msg.includes("monsoon") || msg.includes("varsha") || msg.includes("barish"))
-            return "Monsoon mein kya scene hai! 🌧️ Mujhe ek woman traveler ke nate bohot pasand hai—Goa, Munnar, Coorg, ya Mawlynnong (greenery ki over-dose!). Rain mein travel karte feel karo alag! Bilkul mast jagah hai, zaroor jaana!";
+            return "Monsoon mein kya scene hai! 🌧️ Main recommend karungi — Goa, Munnar, Coorg, ya Mawlynnong (greenery ki over-dose!). Rain mein travel karte feel karo alag! Bilkul mast jagah hai, zaroor jaana!";
 
         // ✅ ADVENTURE
         if (msg.includes("adventure") || msg.includes("thrill") || msg.includes("adrenaline") || msg.includes("sports") || msg.includes("trekking"))
@@ -479,7 +514,7 @@ async function streamChatResponse(userMessage, history) {
 
         // ✅ HONEYMOON
         if (msg.includes("honeymoon") || msg.includes("romantic") || msg.includes("couple") || msg.includes("pyaar"))
-            return "Oho! Honeymoon toh bahut special hona chahiye! 💕 Ek mahila ke taur par main dekh chuki hoon—Goa (sunset + beach romance), Manali (mountains + peace), Lakshadweep (island paradise), Andaman (backwater ka scenes). Bilkul mast jagah hai, zaroor jaana!";
+            return "Oho! Honeymoon toh bahut special hona chahiye! 💕 Mujhe bahut pasand hai — Goa (sunset + beach romance), Manali (mountains + peace), Lakshadweep (island paradise), Andaman (backwater ka scenes). Bilkul mast jagah hai, zaroor jaana!";
 
         // ✅ BUDGET
         if (msg.includes("budget") || msg.includes("cheap") || msg.includes("sasta") || msg.includes("affordable"))
