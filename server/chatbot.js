@@ -382,7 +382,7 @@ async function streamChatResponse(userMessage, history) {
                 role: "model",
                 parts: [{ text: systemPrompt }]
             },
-            ...(Array.isArray(history) ? history : []).map(msg => ({
+            ...(Array.isArray(history)? history.slice(-5): []).map(msg => ({
                 role: msg.role === "assistant" ? "model" : "user",
                 parts: [{ text: msg.content }]
             })),
@@ -411,6 +411,7 @@ async function streamChatResponse(userMessage, history) {
 
         if (!response.ok) {
             const errText = await response.text();
+			
             console.error("❌ Gemini API error:", errText);
             throw new Error('Gemini API failed');
         }
@@ -434,6 +435,44 @@ async function streamChatResponse(userMessage, history) {
         console.error("⚠️ Chatbot fallback triggered:", error);
 
         const msg = userMessage.toLowerCase();
+		// ================= KEYWORD GROUPS =================
+
+			const foodKeywords = [
+				"food",
+				"eat",
+				"restaurant",
+				"dish",
+				"cuisine"
+			];
+
+			const cafeKeywords = [
+				"cafe",
+				"cafes",
+				"coffee"
+			];
+
+			const worthKeywords = [
+				"worth",
+				"visit",
+				"visiting",
+				"worth going"
+			];
+
+			const attractionKeywords = [
+				"things to do",
+				"what to do",
+				"top",
+				"places to visit",
+				"attractions",
+				"sightseeing",
+				"famous"
+			];
+
+			const beachKeywords = [
+				"beach",
+				"beaches"
+			];
+			
 			// ✅ QUESTION DETECTION
 
 		const isQuestion =
@@ -458,38 +497,122 @@ async function streamChatResponse(userMessage, history) {
 			msg.includes("top") ||
 			msg.includes("best");
 				
-					
+		
+		// ================= FALLBACK KNOWLEDGE BASE =================
+
+	const fallbackGuides = {
+
+			hampi: {
+				thingsToDo: [
+					"Virupaksha Temple",
+					"Vittala Temple",
+					"Stone Chariot",
+					"Matanga Hill Sunset",
+					"Coracle Ride"
+				]
+			},
+
+			jaipur: {
+				foods: [
+					"Dal Baati Churma",
+					"Pyaaz Kachori",
+					"Laal Maas",
+					"Ghewar",
+					"Gatte ki Sabzi"
+				]
+			},
+
+			goa: {
+				cafes: [
+					"Artjuna",
+					"Baba Au Rhum",
+					"Infantaria",
+					"Cafe Lilliput",
+					"Pousada by the Beach"
+				]
+			}
+		};
+
+				
+			
 		
         // ✅ DESTINATION SPECIFIC LOOKUP
 	 const destination = destinations.find(d =>
 		msg.includes(d.name.toLowerCase())
 		
 	);
+	
+	// DESTINATION QUESTION FALLBACK
 
-	if (
-		destination &&
-		!isQuestion &&
-		//!msg.includes("?")&& //
-		!msg.includes("cafe") &&
-		!msg.includes("food") &&
-		!msg.includes("restaurant") &&
-		!msg.includes("beach") &&
-		!msg.includes("worth") &&
-		!msg.includes("visit") &&
-		!msg.includes("itinerary") &&
-		!msg.includes("honeymoon")
-	) {
-		return `📍 ${destination.name}, ${destination.state}
+		if (destination && isQuestion) {
+
+		const guide =
+			fallbackGuides[destination.name.toLowerCase()];
+
+		// WORTH VISITING
+
+		if (
+			worthKeywords.some(k => msg.includes(k))
+		) {
+
+			return `${destination.name} is definitely worth visiting! 🌍
 
 	${destination.description}
 
-💰 Budget: ₹${destination.cost}
-🌤️ Best Season: ${destination.bestSeason}
-🎯 Adventure Level: ${destination.adventureLevel}/5
+	🌤️ Best Season: ${destination.bestSeason}
+	💰 Budget: ₹${destination.cost}
 
-Bilkul mast jagah hai, zaroor jaana! 🌍`;
+	Bilkul mast jagah hai, zaroor jaana!`;
+		}
+
+		// THINGS TO DO
+
+		if (
+			attractionKeywords.some(k => msg.includes(k))
+		) {
+
+			if (guide?.thingsToDo) {
+
+				return `Top things to do in ${destination.name}:
+
+	${guide.thingsToDo.map(x => `• ${x}`).join("\n")}
+
+	Bilkul mast jagah hai, zaroor jaana!`;
+			}
+		}
+
+		// FOOD
+
+		if (
+			foodKeywords.some(k => msg.includes(k))
+		) {
+
+			if (guide?.foods) {
+
+				return `Must-try food in ${destination.name}:
+
+	${guide.foods.map(x => `• ${x}`).join("\n")}
+
+	Enjoy your food journey! 🍽️`;
+			}
+		}
+
+		// CAFES
+
+		if (
+			cafeKeywords.some(k => msg.includes(k))
+		) {
+
+			if (guide?.cafes) {
+
+				return `Best cafes in ${destination.name}:
+
+	${guide.cafes.map(x => `• ${x}`).join("\n")}
+
+	☕ Happy cafe hopping!`;
+        }
+    }
 }
-
         // ✅ GREETINGS
         if (msg.match(/^(hi|hello|namaste|hey|hola|kya hal hai|kaisa hai)/)) {
             return "Namaste beta! Main Tara hoon, ek lady travel guide! 🙏 Meri taraf se tum ko India ke sabse mast destinations dikhana pasand hai. Kahan jaana hai? Mountains, beaches, heritage, ya adventure? Bilkul mast jagah hai, zaroor jaana!";
@@ -537,6 +660,29 @@ Bilkul mast jagah hai, zaroor jaana! 🌍`;
 
         // ✅ OFF-TOPIC (FALLBACK)
         return "⚠️ Travel AI temporarily busy hai. Thodi der baad try karo. Meanwhile main destination recommendations de sakti hoon.";
+		if (
+			msg.includes("hampi") ||
+			msg.includes("goa") ||
+			msg.includes("jaipur") ||
+			msg.includes("varanasi")
+		) {
+			const destination = destinations.find(d =>
+				msg.includes(d.name.toLowerCase())
+			);
+
+			if (destination) {
+				return `📍 ${destination.name}
+
+		${destination.description}
+
+		⭐ Top Things:
+		${destination.topThings.map(t => `• ${t}`).join("\n")}
+
+		🌤️ Best Season: ${destination.bestSeason}
+
+		Bilkul mast jagah hai, zaroor jaana! 🌍`;
+			}
+		}
     }
 }
 

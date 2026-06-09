@@ -65,7 +65,13 @@ const destinations = [
         cost: 20000,
         adventureLevel: 2,
         bestSeason: 'November - February',
-        topThings: ['Beach hopping and water sports', 'Sunset parties and nightlife'],
+        topThings: [
+		  'Baga Beach',
+		  'Calangute Beach',
+		  'Anjuna Flea Market',
+		  'Dudhsagar Falls',
+		  'Goa Nightlife'
+		],
         idealDays: 4,
         isTopPick: true
     },
@@ -175,7 +181,13 @@ const destinations = [
         cost: 14000,
         adventureLevel: 3,
         bestSeason: 'October - February',
-        topThings: ['Virupaksha Temple exploration', 'Stone carving walks'],
+        topThings: [
+		  'Virupaksha Temple',
+		  'Vittala Temple & Stone Chariot',
+		  'Matanga Hill Sunset',
+		  'Coracle Ride',
+		  'Lotus Mahal'
+		],
         idealDays: 3,
         isTopPick: true
     },
