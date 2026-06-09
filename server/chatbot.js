@@ -376,7 +376,7 @@ ${destList}
 async function streamChatResponse(userMessage, history) {
     try {
         const systemPrompt = buildSystemPrompt();
-
+		console.log("History length:", history?.length);
         const messages = [
             {
                 role: "model",
