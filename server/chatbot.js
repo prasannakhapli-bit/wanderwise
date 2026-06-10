@@ -2,6 +2,8 @@ const fetch = require('node-fetch');
 
 const destinations = require('./destinations');
 
+const fs = require("fs");
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 
@@ -382,7 +384,7 @@ async function streamChatResponse(userMessage, history) {
                 role: "model",
                 parts: [{ text: systemPrompt }]
             },
-            ...(Array.isArray(history)? history.slice(-5): []).map(msg => ({
+            ...(Array.isArray(history)? history.slice(-2): []).map(msg => ({
                 role: msg.role === "assistant" ? "model" : "user",
                 parts: [{ text: msg.content }]
             })),
@@ -391,6 +393,41 @@ async function streamChatResponse(userMessage, history) {
                 parts: [{ text: userMessage.toLowerCase().trim() }]
             }
         ];
+				
+		const msg = userMessage.toLowerCase();
+
+		const travelKeywords = [
+			"goa",
+			"hampi",
+			"jaipur",
+			"varanasi",
+			"manali",
+			"auli",
+			"agra",
+			"jodhpur",
+			"beach",
+			"cafe",
+			"food",
+			"restaurant",
+			"visit",
+			"places",
+			"trip",
+			"travel",
+			"itinerary",
+			"honeymoon",
+			"nightlife",
+			"shopping",
+			"weather",
+			"things to do"
+		];
+
+		const isTravelQuery = travelKeywords.some(k =>
+			msg.includes(k)
+		);
+
+		if (isTravelQuery) {
+			throw new Error("FORCE_FALLBACK");
+		}
 
         console.log("👉 Sending to Gemini:", userMessage);
 
@@ -413,7 +450,9 @@ async function streamChatResponse(userMessage, history) {
             const errText = await response.text();
 			
             console.error("❌ Gemini API error:", errText);
-            throw new Error('Gemini API failed');
+            throw new Error(
+    `			Gemini API failed: ${response.status}`
+			);
         }
 
         const data = await response.json();
@@ -435,6 +474,82 @@ async function streamChatResponse(userMessage, history) {
         console.error("⚠️ Chatbot fallback triggered:", error);
 
         const msg = userMessage.toLowerCase();
+		
+		// ================= SAVE TRIP =================
+
+		if (msg.startsWith("save ")) {
+
+			const destinationName = msg.replace("save ", "").trim();
+
+			const destination = destinations.find(
+				d => d.name.toLowerCase() === destinationName
+			);
+
+			if (!destination) {
+				return `I couldn't find "${destinationName}" in WanderWise destinations.`;
+			}
+
+			let savedTrips = [];
+
+			try {
+				savedTrips = JSON.parse(
+					fs.readFileSync("./savedTrips.json", "utf8")
+				);
+			} catch {
+				savedTrips = [];
+			}
+
+			const alreadyExists = savedTrips.find(
+				t => t.name === destination.name
+			);
+
+			if (!alreadyExists) {
+				savedTrips.push({
+					id: destination.id,
+					name: destination.name,
+					state: destination.state,
+					savedAt: new Date().toISOString()
+				});
+
+				fs.writeFileSync(
+					"./savedTrips.json",
+					JSON.stringify(savedTrips, null, 2)
+				);
+			}
+
+			return `✅ ${destination.name} saved to your trips!`;
+		}
+		
+		// ================= SHOW SAVED TRIPS =================
+
+			if (
+				msg.includes("saved trips") ||
+				msg.includes("my trips")
+			) {
+
+				let savedTrips = [];
+
+				try {
+					savedTrips = JSON.parse(
+						fs.readFileSync("./savedTrips.json", "utf8")
+					);
+				} catch {
+					savedTrips = [];
+				}
+
+				if (savedTrips.length === 0) {
+					return "📭 No trips saved yet.";
+				}
+
+				return (
+					"📌 Your Saved Trips:\n\n" +
+					savedTrips
+						.map(t => `• ${t.name}, ${t.state}`)
+						.join("\n")
+				);
+			}
+			
+			
 		// ================= KEYWORD GROUPS =================
 
 			const foodKeywords = [
