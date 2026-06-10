@@ -29,22 +29,8 @@ function savePreferences(data) {
     );
 }
 
-function loadPreferences() {
-    try {
-        return JSON.parse(
-            fs.readFileSync(PREFERENCES_FILE, "utf8")
-        );
-    } catch {
-        return {};
-    }
-}
 
-function savePreferences(data) {
-    fs.writeFileSync(
-        PREFERENCES_FILE,
-        JSON.stringify(data, null, 2)
-    );
-}
+
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
@@ -491,12 +477,28 @@ async function streamChatResponse(userMessage, history) {
 
 				return "👨‍👩‍👧‍👦 Got it! I'll remember that you usually travel with family.";
 			}
+			
+			
+			if (
+				msg.includes("my preferences") ||
+				msg.includes("show preferences") ||
+				msg.includes("what do you remember about me")
+			) {
+				return `
+			🧠 Your Travel Preferences
+
+			🏖️ Travel Style: ${preferences.travelStyle || "Not set"}
+			💰 Budget Style: ${preferences.budgetStyle || "Not set"}
+			👨‍👩‍👧‍👦 Traveller Type: ${preferences.travellerType || "Not set"}
+			`;
+			}
+				
 
 		const travelKeywords = [
 			"goa",
 			"hampi",
 			"jaipur",
-			"varanasi",
+			"varanasi",	
 			"manali",
 			"auli",
 			"agra",
