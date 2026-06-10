@@ -4,6 +4,30 @@ const destinations = require('./destinations');
 
 const fs = require("fs");
 
+const path = require("path");
+
+const PREFERENCES_FILE = path.join(
+    __dirname,
+    "preferences.json"
+);
+
+function loadPreferences() {
+    try {
+        return JSON.parse(
+            fs.readFileSync(PREFERENCES_FILE, "utf8")
+        );
+    } catch {
+        return {};
+    }
+}
+
+function savePreferences(data) {
+    fs.writeFileSync(
+        PREFERENCES_FILE,
+        JSON.stringify(data, null, 2)
+    );
+}
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 
@@ -395,6 +419,60 @@ async function streamChatResponse(userMessage, history) {
         ];
 				
 		const msg = userMessage.toLowerCase();
+		
+		const preferences = loadPreferences();
+		
+			// ================= USER PREFERENCES =================
+
+			if (
+				msg.includes("i like beaches") ||
+				msg.includes("love beaches")
+			) {
+				preferences.travelStyle = "beaches";
+				savePreferences(preferences);
+
+				return "🌴 Got it! I'll remember that you like beach destinations.";
+			}
+
+			if (
+				msg.includes("i like mountains") ||
+				msg.includes("love mountains")
+			) {
+				preferences.travelStyle = "mountains";
+				savePreferences(preferences);
+
+				return "🏔️ Got it! I'll remember that you like mountain destinations.";
+			}
+
+			if (
+				msg.includes("budget trips") ||
+				msg.includes("cheap travel")
+			) {
+				preferences.budgetStyle = "budget";
+				savePreferences(preferences);
+
+				return "💰 Got it! I'll prioritize budget-friendly destinations.";
+			}
+
+			if (
+				msg.includes("luxury travel") ||
+				msg.includes("luxury trips")
+			) {
+				preferences.budgetStyle = "luxury";
+				savePreferences(preferences);
+
+				return "✨ Got it! I'll prioritize premium travel experiences.";
+			}
+
+			if (
+				msg.includes("family trips") ||
+				msg.includes("travel with family")
+			) {
+				preferences.travellerType = "family";
+				savePreferences(preferences);
+
+				return "👨‍👩‍👧‍👦 Got it! I'll remember that you usually travel with family.";
+			}
 
 		const travelKeywords = [
 			"goa",
