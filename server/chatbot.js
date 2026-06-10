@@ -10,6 +10,24 @@ const PREFERENCES_FILE = path.join(
     __dirname,
     "preferences.json"
 );
+    
+
+function loadPreferences() {
+    try {
+        return JSON.parse(
+            fs.readFileSync(PREFERENCES_FILE, "utf8")
+        );
+    } catch {
+        return {};
+    }
+}
+
+function savePreferences(data) {
+    fs.writeFileSync(
+        PREFERENCES_FILE,
+        JSON.stringify(data, null, 2)
+    );
+}
 
 function loadPreferences() {
     try {
