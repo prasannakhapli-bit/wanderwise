@@ -423,8 +423,13 @@ async function streamChatResponse(userMessage, history) {
         ];
 				
 		const msg = userMessage.toLowerCase();
-		
+
+		console.log("DEBUG RAW MESSAGE:", userMessage);
+		console.log("DEBUG NORMALIZED MESSAGE:", msg);
+
 		const preferences = loadPreferences();
+
+		console.log("DEBUG PREFERENCES:", preferences);
 		
 			// ================= USER PREFERENCES =================
 
@@ -478,20 +483,23 @@ async function streamChatResponse(userMessage, history) {
 				return "👨‍👩‍👧‍👦 Got it! I'll remember that you usually travel with family.";
 			}
 			
-			
 			if (
-				msg.includes("my preferences") ||
-				msg.includes("show preferences") ||
-				msg.includes("what do you remember about me")
-			) {
-				return `
-			🧠 Your Travel Preferences
+					msg.includes("my preferences") ||
+					msg.includes("show preferences") ||
+					msg.includes("what do you remember about me")
+				) {
 
-			🏖️ Travel Style: ${preferences.travelStyle || "Not set"}
-			💰 Budget Style: ${preferences.budgetStyle || "Not set"}
-			👨‍👩‍👧‍👦 Traveller Type: ${preferences.travellerType || "Not set"}
-			`;
-			}
+					console.log("DEBUG PREFERENCES BLOCK HIT");
+
+					return `
+				🧠 Your Travel Preferences
+
+				🏖️ Travel Style: ${preferences.travelStyle || "Not set"}
+				💰 Budget Style: ${preferences.budgetStyle || "Not set"}
+				👨‍👩‍👧‍👦 Traveller Type: ${preferences.travellerType || "Not set"}
+				`;
+				}
+			
 				
 
 		const travelKeywords = [
