@@ -499,6 +499,76 @@ async function streamChatResponse(userMessage, history) {
 				👨‍👩‍👧‍👦 Traveller Type: ${preferences.travellerType || "Not set"}
 				`;
 				}
+				
+				
+				// ================= SMART RECOMMENDATIONS =================
+
+			if (
+				msg.includes("recommend") ||
+				msg.includes("suggest a trip") ||
+				msg.includes("where should i travel") ||
+				msg.includes("trip recommendation")
+			) {
+
+				let bestDestination = null;
+				let bestScore = -1;
+
+				for (const destination of destinations) {
+
+					let score = 0;
+
+					if (
+						preferences.travelStyle === "beaches" &&
+						destination.category === "Beaches"
+					) {
+						score += 3;
+					}
+
+					if (
+						preferences.travelStyle === "mountains" &&
+						destination.category === "Mountains"
+					) {
+						score += 3;
+					}
+
+					if (
+						preferences.budgetStyle === "luxury" &&
+						destination.cost >= 25000
+					) {
+						score += 2;
+					}
+
+					if (
+						preferences.budgetStyle === "budget" &&
+						destination.cost <= 18000
+					) {
+						score += 2;
+					}
+
+					if (score > bestScore) {
+						bestScore = score;
+						bestDestination = destination;
+					}
+				}
+
+				if (!bestDestination) {
+					bestDestination = destinations[0];
+				}
+
+				return `
+			🌟 Based on your preferences, I recommend:
+
+			📍 ${bestDestination.name}, ${bestDestination.state}
+
+			${bestDestination.description}
+
+			💰 Budget: ₹${bestDestination.cost}
+			🌤️ Best Season: ${bestDestination.bestSeason}
+			📅 Ideal Days: ${bestDestination.idealDays}
+
+			✈️ Plan Travel to ${bestDestination.name}
+			`;
+			}
 			
 				
 
