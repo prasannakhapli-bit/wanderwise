@@ -69,8 +69,10 @@ const destinations = [
 		  'Baga Beach',
 		  'Calangute Beach',
 		  'Anjuna Flea Market',
-		  'Dudhsagar Falls',
-		  'Goa Nightlife'
+		  'Fort Aguada',
+		  'Dudhsagar Waterfalls',
+		  'Candolim Beach',
+		  'Chapora Fort Sunset'
 		],
         idealDays: 4,
         isTopPick: true
@@ -126,8 +128,16 @@ const destinations = [
         cost: 18000,
         adventureLevel: 2,
         bestSeason: 'October - March',
-        topThings: ['City Palace and Jantar Mantar', 'Hawa Mahal photography'],
-        idealDays: 2,
+        topThings: [
+		  'City Palace and Jantar Mantar',
+		  'Hawa Mahal photography',
+		  'Amber Fort',
+		  'Nahargarh Fort Sunset',
+		  'Jal Mahal Lake View',
+		  'Albert Hall Museum',
+		  'Johari Bazaar Shopping'
+		],
+        idealDays: 3,
         isTopPick: true
     },
     {
@@ -186,9 +196,11 @@ const destinations = [
 		  'Vittala Temple & Stone Chariot',
 		  'Matanga Hill Sunset',
 		  'Coracle Ride',
-		  'Lotus Mahal'
+		  'Lotus Mahal',
+		  'Elephant Stables',
+		  'Hemakuta Hill'
 		],
-        idealDays: 3,
+        idealDays: 4,
         isTopPick: true
     },
     {

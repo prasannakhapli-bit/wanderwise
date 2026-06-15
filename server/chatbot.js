@@ -509,6 +509,9 @@ async function streamChatResponse(userMessage, history) {
 				msg.includes("where should i travel") ||
 				msg.includes("trip recommendation")
 			) {
+				
+				console.log("🌟 RECOMMENDATION BLOCK HIT");
+
 
 				let bestDestination = null;
 				let bestScore = -1;
@@ -590,7 +593,7 @@ async function streamChatResponse(userMessage, history) {
 
 					let days = 3;
 
-					const dayMatch = msg.match(/(\d+)\s*day/);
+					const dayMatch = msg.match(/(\d+)\s*-?\s*day/i);
 
 					if (dayMatch) {
 						days = parseInt(dayMatch[1]);
