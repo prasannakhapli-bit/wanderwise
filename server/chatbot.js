@@ -1009,6 +1009,7 @@ async function streamChatResponse(userMessage, history) {
 
         // ✅ OFF-TOPIC (FALLBACK)
         return "⚠️ Travel AI temporarily busy hai. Thodi der baad try karo. Meanwhile main destination recommendations de sakti hoon.";
+		/*
 		if (
 			msg.includes("hampi") ||
 			msg.includes("goa") ||
@@ -1026,12 +1027,14 @@ async function streamChatResponse(userMessage, history) {
 
 		⭐ Top Things:
 		${destination.topThings.map(t => `• ${t}`).join("\n")}
+		
 
 		🌤️ Best Season: ${destination.bestSeason}
 
 		Bilkul mast jagah hai, zaroor jaana! 🌍`;
 			}
 		}
+		*/
     }
 }
 
