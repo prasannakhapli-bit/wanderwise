@@ -569,7 +569,62 @@ async function streamChatResponse(userMessage, history) {
 			✈️ Plan Travel to ${bestDestination.name}
 			`;
 			}
-			
+		
+
+				// ================= ITINERARY GENERATOR =================
+				
+				console.log("🔥 ITINERARY BLOCK HIT");
+
+				if (
+					msg.includes("itinerary") ||
+					msg.includes("plan my trip")
+				) {
+
+					const destination = destinations.find(d =>
+						msg.includes(d.name.toLowerCase())
+					);
+
+					if (!destination) {
+						return "✈️ Please tell me which destination you want an itinerary for. Example: '3 day Goa itinerary'";
+					}
+
+					let days = 3;
+
+					const dayMatch = msg.match(/(\d+)\s*day/);
+
+					if (dayMatch) {
+						days = parseInt(dayMatch[1]);
+					}
+
+					let itinerary = `
+				🗺️ ${days}-Day Itinerary for ${destination.name}
+
+				`;
+
+					for (let i = 1; i <= days; i++) {
+
+						const activity =
+							destination.topThings[
+								(i - 1) % destination.topThings.length
+							];
+
+						itinerary += `
+				📅 Day ${i}
+				• ${activity}
+
+				`;
+					}
+
+					itinerary += `
+				💰 Estimated Budget: ₹${destination.cost}
+				🌤️ Best Season: ${destination.bestSeason}
+
+				✈️ Have an amazing trip!
+				`;
+
+					return itinerary;
+				}
+						
 			
 		const travelKeywords = [
 			"goa",
@@ -940,9 +995,9 @@ async function streamChatResponse(userMessage, history) {
         if (msg.includes("hidden") || msg.includes("offbeat") || msg.includes("unique") || msg.includes("secret"))
             return "Offbeat destinations ka kya scene hai! 🌟 Mere experience mein—Spiti Valley (otherworldly landscape), Hampi (temples + boulders), Mawlynnong (greenest village), Chettinad (colonial charm). Bilkul mast jagah hai, zaroor jaana!";
 
-        // ✅ DURATION/DAYS
+      /*  // ✅ DURATION/DAYS
         if (msg.includes("day") || msg.includes("week") || msg.includes("duration") || msg.includes("kitne din"))
-            return "Kitne din ka plan hai? 📅 2 din mein Agra, 3 din mein Manali, 4 din mein Goa, ya 5 din mein Spiti Valley. Kaunsa destination pasand hai? Bilkul mast jagah hai, zaroor jaana!";
+            return "Kitne din ka plan hai? 📅 2 din mein Agra, 3 din mein Manali, 4 din mein Goa, ya 5 din mein Spiti Valley. Kaunsa destination pasand hai? Bilkul mast jagah hai, zaroor jaana!"; */
 
         // ✅ COST/PRICE
         if (msg.includes("cost") || msg.includes("price") || msg.includes("rupees") || msg.includes("kitna kharcha"))
