@@ -650,6 +650,8 @@ async function streamChatResponse(userMessage, history) {
 			"weather",
 			"things to do"
 		];
+		
+		/*
 
 		const isTravelQuery = travelKeywords.some(k =>
 			msg.includes(k)
@@ -658,6 +660,8 @@ async function streamChatResponse(userMessage, history) {
 		if (isTravelQuery) {
 			throw new Error("FORCE_FALLBACK");
 		}
+		
+		*/
 
         console.log("👉 Sending to Gemini:", userMessage);
 
