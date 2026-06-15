@@ -570,8 +570,7 @@ async function streamChatResponse(userMessage, history) {
 			`;
 			}
 			
-				
-
+			
 		const travelKeywords = [
 			"goa",
 			"hampi",
