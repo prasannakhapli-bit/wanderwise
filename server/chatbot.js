@@ -573,6 +573,34 @@ async function streamChatResponse(userMessage, history) {
 			`;
 			}
 		
+		
+		// ================= TRIP PLANNING =================
+
+				if (msg.startsWith("plan travel to")) {
+
+					const destination = destinations.find(d =>
+						msg.includes(d.name.toLowerCase())
+					);
+
+					if (!destination) {
+						return "Please tell me which destination you want to plan.";
+					}
+
+					return `
+				Arre wah! ${destination.name} planning shuru karte hain! 🧳
+
+				Mujhe bas kuch details bata do:
+
+				1. Departure city?
+				2. Kitne din ke liye jaana hai?
+				3. Kis month mein jaana hai?
+				4. Kitne log ja rahe hain?
+				5. Approx budget kya hai?
+
+				Main tumhare liye complete travel plan bana dunga.
+				`;
+				}
+		
 
 				// ================= ITINERARY GENERATOR =================
 				
@@ -581,7 +609,7 @@ async function streamChatResponse(userMessage, history) {
 				if (
 					msg.includes("itinerary") ||
 					msg.includes("plan my trip") ||
-					msg.includes("plan travel to") ||
+					/*msg.includes("plan travel to") ||*/
 					msg.includes("travel plan")
 				) {
 
