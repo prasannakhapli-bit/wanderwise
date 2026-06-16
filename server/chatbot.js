@@ -580,7 +580,9 @@ async function streamChatResponse(userMessage, history) {
 
 				if (
 					msg.includes("itinerary") ||
-					msg.includes("plan my trip")
+					msg.includes("plan my trip") ||
+					msg.includes("plan travel to") ||
+					msg.includes("travel plan")
 				) {
 
 					const destination = destinations.find(d =>
