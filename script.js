@@ -214,12 +214,20 @@ function createTravelAction(destination) {
 
 // ✅ HELPER: Handle travel planning click
 function planTravel(destName) {
-    console.log("🧳 Planning travel to:", destName);
-    
-    const dest = state.destinations.find(d => d.name === destName);
-    if (!dest) return;
-    
-    // ✅ Show modal with destination details
+
+    console.log("🚨 PLAN TRAVEL BUTTON CLICKED:", destName);
+
+    const dest = state.destinations.find(
+        d => d.name === destName
+    );
+
+    if (!dest) {
+        console.log("❌ Destination not found:", destName);
+        return;
+    }
+
+    console.log("✅ Opening modal for:", dest.name);
+
     showDestinationModal(dest.id);
 }
 
