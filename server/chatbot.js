@@ -676,8 +676,14 @@ async function streamChatResponse(userMessage, history) {
 
 					return `
 				Arre wah! ${destination.name} planning shuru karte hain! 🧳
+				
+				Sabse pehle batao...
 
-				Mujhe bas kuch details bata do:
+				🚆 Which city are you travelling from?
+				`;
+				}
+
+				/*Mujhe bas kuch details bata do:
 
 				1. Departure city?
 				2. Kitne din ke liye jaana hai?
@@ -687,7 +693,7 @@ async function streamChatResponse(userMessage, history) {
 
 				Main tumhare liye complete travel plan bana dunga.
 				`;
-				}
+				}*/
 		
 
 				// ================= ITINERARY GENERATOR =================
