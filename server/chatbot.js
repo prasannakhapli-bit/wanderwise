@@ -10,7 +10,21 @@ const PREFERENCES_FILE = path.join(
     __dirname,
     "preferences.json"
 );
-    
+
+// ===============================
+// ACTIVE TRAVEL PLANNING SESSION
+// ===============================
+
+let activeTripPlanning = {
+    active: false,
+    destination: null,
+    departureCity: null,
+    duration: null,
+    month: null,
+    travellers: null,
+    budget: null,
+    currentQuestion: null
+};
 
 function loadPreferences() {
     try {
@@ -423,6 +437,74 @@ async function streamChatResponse(userMessage, history) {
         ];
 				
 		const msg = userMessage.toLowerCase();
+		
+		// =======================================
+		// CONTINUE ACTIVE TRAVEL PLANNING
+		// =======================================
+
+	if (activeTripPlanning.active) {
+		
+		console.log("ACTIVE SESSION CONTINUED");
+		console.log(activeTripPlanning);
+
+		switch (activeTripPlanning.currentQuestion) {
+
+			case "departure":
+
+				activeTripPlanning.departureCity = userMessage.trim();
+				activeTripPlanning.currentQuestion = "duration";
+
+				return "Great! 🚆 Travelling from " +
+					activeTripPlanning.departureCity +
+					".\n\nHow many days are you planning to stay?";
+
+			case "duration":
+
+				activeTripPlanning.duration = userMessage.trim();
+				activeTripPlanning.currentQuestion = "month";
+
+				return "Perfect!\n\nWhich month are you planning to travel?";
+
+			case "month":
+
+				activeTripPlanning.month = userMessage.trim();
+				activeTripPlanning.currentQuestion = "travellers";
+
+				return "Awesome!\n\nHow many people are travelling?";
+
+			case "travellers":
+
+				activeTripPlanning.travellers = userMessage.trim();
+				activeTripPlanning.currentQuestion = "budget";
+
+				return "Got it!\n\nWhat is your approximate budget?";
+
+			case "budget":
+
+			activeTripPlanning.budget = userMessage.trim();
+
+			// activeTripPlanning.active = false;
+
+			console.log("READY TO GENERATE ITINERARY");
+
+			return `
+		Excellent! 🎉
+
+		Here is what I've collected:
+
+		📍 Destination: ${activeTripPlanning.destination}
+		🚆 Departure: ${activeTripPlanning.departureCity}
+		📅 Duration: ${activeTripPlanning.duration}
+		🗓️ Month: ${activeTripPlanning.month}
+		👥 Travellers: ${activeTripPlanning.travellers}
+		💰 Budget: ${activeTripPlanning.budget}
+
+		Generating your itinerary...
+		`;
+
+    }
+
+}
 
 		console.log("DEBUG RAW MESSAGE:", userMessage);
 		console.log("DEBUG NORMALIZED MESSAGE:", msg);
@@ -573,8 +655,8 @@ async function streamChatResponse(userMessage, history) {
 			`;
 			}
 		
-		
-		// ================= TRIP PLANNING =================
+						
+					// ================= TRIP PLANNING =================
 
 				if (msg.startsWith("plan travel to")) {
 
@@ -585,6 +667,12 @@ async function streamChatResponse(userMessage, history) {
 					if (!destination) {
 						return "Please tell me which destination you want to plan.";
 					}
+
+					activeTripPlanning.active = true;
+					console.log("ACTIVE SESSION STARTED");
+					console.log(activeTripPlanning);
+					activeTripPlanning.destination = destination.name;
+					activeTripPlanning.currentQuestion = "departure";
 
 					return `
 				Arre wah! ${destination.name} planning shuru karte hain! 🧳
@@ -609,13 +697,18 @@ async function streamChatResponse(userMessage, history) {
 				if (
 					msg.includes("itinerary") ||
 					msg.includes("plan my trip") ||
-					/*msg.includes("plan travel to") ||*/
+					/*msg.includes("plan travel") ||*/
 					msg.includes("travel plan")
 				) {
 
 					const destination = destinations.find(d =>
-						msg.includes(d.name.toLowerCase())
+						msg.includes(d.name.toLowerCase())	
 					);
+					
+					
+
+/*// ================= END TRIP PLANNING =================*/	
+
 
 					if (!destination) {
 						return "✈️ Please tell me which destination you want an itinerary for. Example: '3 day Goa itinerary'";
