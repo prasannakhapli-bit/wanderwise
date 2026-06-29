@@ -479,15 +479,15 @@ async function streamChatResponse(userMessage, history) {
 
 				return "Got it!\n\nWhat is your approximate budget?";
 
-			case "budget":
+			/*/*case "budget":
 
 			activeTripPlanning.budget = userMessage.trim();
 
-			// activeTripPlanning.active = false;
+			//activeTripPlanning.active = false;
 
 			console.log("READY TO GENERATE ITINERARY");
 
-			return `
+			/*return `
 		Excellent! 🎉
 
 		Here is what I've collected:
@@ -500,12 +500,55 @@ async function streamChatResponse(userMessage, history) {
 		💰 Budget: ${activeTripPlanning.budget}
 
 		Generating your itinerary...
-		`;
+		`;*/
+		/*"Generate the itinerary using the values stored in activeTripPlanning, then return that itinerary."
+    }*/
+	
+		
+		
+			case "budget":
 
-    }
+				activeTripPlanning.budget = userMessage.trim();
 
-}
+				activeTripPlanning.active = false;
+				activeTripPlanning.currentQuestion = null;
 
+				console.log("READY TO GENERATE ITINERARY");
+
+				const itineraryPrompt = `
+			Create a detailed ${activeTripPlanning.duration}-day travel itinerary.
+
+			Destination: ${activeTripPlanning.destination}
+			Departure City: ${activeTripPlanning.departureCity}
+			Travel Month: ${activeTripPlanning.month}
+			Travellers: ${activeTripPlanning.travellers}
+			Budget: ₹${activeTripPlanning.budget}
+
+			Include:
+
+			• Day-wise itinerary
+			• Morning, Afternoon and Evening activities
+			• Hotel suggestions
+			• Food recommendations
+			• Local transport suggestions
+			• Budget breakdown
+			• Travel tips
+
+			Keep the response friendly and in Hinglish.
+			`;
+
+				messages.push({
+					role: "user",
+					parts: [{
+						text: itineraryPrompt
+					}]
+				});
+
+				break;
+						
+
+			}
+	}
 		console.log("DEBUG RAW MESSAGE:", userMessage);
 		console.log("DEBUG NORMALIZED MESSAGE:", msg);
 
