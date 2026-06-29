@@ -668,20 +668,28 @@ async function streamChatResponse(userMessage, history) {
 						return "Please tell me which destination you want to plan.";
 					}
 
-					activeTripPlanning.active = true;
+					activeTripPlanning = {
+					active: true,
+					destination: destination.name,
+					departureCity: null,
+					duration: null,
+					month: null,
+					travellers: null,
+					budget: null,
+					currentQuestion: "departure"
+					};
+					
 					console.log("ACTIVE SESSION STARTED");
 					console.log(activeTripPlanning);
-					activeTripPlanning.destination = destination.name;
-					activeTripPlanning.currentQuestion = "departure";
 
 					return `
-				Arre wah! ${destination.name} planning shuru karte hain! 🧳
-				
-				Sabse pehle batao...
+					Arre wah! ${destination.name} planning shuru karte hain! 🧳
+					
+					Sabse pehle batao...
 
-				🚆 Which city are you travelling from?
-				`;
-				}
+					🚆 Which city are you travelling from?
+					`;
+					}
 
 				/*Mujhe bas kuch details bata do:
 
